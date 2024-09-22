@@ -70,13 +70,19 @@ jobs:
           make V=s -j$(nproc)
           echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
-      - name: 9.上传固件
+      - name: 9.生成SHA256校验和
+        run: |
+          cd immortalwrt-mt798x/bin/targets/*/*
+          sha256sum *.bin > sha256sums.txt
+          cat sha256sums.txt
+
+      - name: 10.上传固件
         uses: actions/upload-artifact@master
         with:
           name: AX6000_RedMi
           path: immortalwrt-mt798x/bin
 
-      - name: 10.发布固件
+      - name: 11.发布固件
         uses: ncipollo/release-action@v1
         with:
           tag: "${{ env.DEVICE }}--${{ env.FILE_DATE }}"
