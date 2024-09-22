@@ -47,6 +47,8 @@ jobs:
 
       - name: 4.加载配置文件
         run: |
+          ls -l $CONFIG_FILE || echo "Config file not found"
+          ls -l $GITHUB_WORKSPACE
           [ -e $CONFIG_FILE ] && cp -f $CONFIG_FILE $GITHUB_WORKSPACE/immortalwrt-mt798x/
 
       - name: 5.修改Lan IP
