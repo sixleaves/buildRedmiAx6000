@@ -93,7 +93,7 @@ jobs:
       - name: 11.发布固件
         uses: ncipollo/release-action@v1
         with:
-          tag: "${{ env.DEVICE }}--${{ env.FILE_DATE }}"
+          tag: "${{ env.DEVICE_NAME }}--${{ env.FILE_DATE }}"
           artifacts: "immortalwrt-mt798x/bin/targets/*/*/*"
           body: |
             # 未测试×
