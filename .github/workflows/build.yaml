@@ -34,15 +34,6 @@ jobs:
           sudo mkdir -p /workdir
           sudo chown $USER:$GROUPS /workdir
 
-      - name: 缓存依赖
-        uses: actions/cache@v2
-        with:
-          path: /workdir/.ccache
-          key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ hashFiles('**/complie_config') }}
-          restore-keys: |
-            ${{ runner.os }}-ccache-${{ github.ref }}-
-            ${{ runner.os }}-ccache-
-
       - name: 3.克隆源代码
         working-directory: /workdir
         run: |
@@ -61,15 +52,6 @@ jobs:
         run: |
           cd immortalwrt-mt798x
           sed -i 's/192.168.1.1/192.168.23.1/g' package/base-files/files/bin/config_generate
-
-      - name: 缓存下载的依赖包
-        uses: actions/cache@v2
-        with:
-          path: immortalwrt-mt798x/dl
-          key: ${{ runner.os }}-dl-${{ github.ref }}-${{ hashFiles('**/complie_config') }}
-          restore-keys: |
-            ${{ runner.os }}-dl-${{ github.ref }}-
-            ${{ runner.os }}-dl-
 
       - name: 6.下载依赖包
         run: |
