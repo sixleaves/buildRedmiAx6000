@@ -6,6 +6,7 @@ env:
   REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
   REPO_BRANCH: openwrt-21.02
   CONFIG_FILE: .config
+  DIY_SH: diy-part2.sh
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
@@ -45,18 +46,18 @@ jobs:
 
       - name: 4.加载配置文件
         run: |
-          [ -e $CONFIG_FILE ] && cp $CONFIG_FILE $GITHUB_WORKSPACE/immortalwrt-mt798x/
+          [ -e $CONFIG_FILE ] && cp -f $CONFIG_FILE $GITHUB_WORKSPACE/immortalwrt-mt798x/
 
       - name: 5.修改Lan IP
         run: |
           cd immortalwrt-mt798x
-          sed -i 's/192.168.1.1/192.168.31.1/g' package/base-files/files/bin/config_generate
+          sed -i 's/192.168.1.1/192.168.23.1/g' package/base-files/files/bin/config_generate
 
       - name: 6.下载依赖包
         run: |
           cd immortalwrt-mt798x
           make defconfig
-          cp .config complie_config
+          cp -f .config complie_config
           make download -j8 V=s
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
