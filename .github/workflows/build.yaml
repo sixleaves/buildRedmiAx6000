@@ -41,6 +41,7 @@ jobs:
           df -hT $PWD
           git clone $REPO_URL -b $REPO_BRANCH immortalwrt-mt798x
           ln -sf /workdir/immortalwrt-mt798x $GITHUB_WORKSPACE/immortalwrt-mt798x
+          cd immortalwrt-mt798x
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
