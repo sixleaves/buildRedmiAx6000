@@ -1,0 +1,86 @@
+name: BuildImmortalWRT
+on:
+  workflow_dispatch:
+
+env:
+  REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
+  REPO_BRANCH: openwrt-21.02
+  DEVICE: REDMI_AX6000
+  CONFIG_FILE: .config
+  TZ: Asia/Shanghai
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: 1.下载config配置
+        uses: actions/checkout@master
+
+      - name: 2.安装依赖
+        run: |
+          sudo -E apt update -y
+          sudo -E apt full-upgrade -y
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          sudo -E apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+            bzip2 ccache clang clangd cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+            g++-multilib git gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev \
+            libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 libncursesw5-dev libreadline-dev \
+            libssl-dev libtool lld lldb lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 \
+            python3 python3-pip python3-ply python3-docutils qemu-utils re2c rsync scons squashfs-tools subversion swig \
+            texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+
+      - name: 3.下载源代码
+        working-directory: /workdir
+        run: |
+          df -hT $PWD
+          git clone $REPO_URL -b $REPO_BRANCH immortalwrt-mt798x
+          ln -sf /workdir/immortalwrt-mt798x $GITHUB_WORKSPACE/immortalwrt-mt798x
+
+      - name: 5.修改Lan IP
+        run: |
+          cd immortalwrt-mt798x
+          sed -i 's/192.168.1.1/192.168.31.1/g' package/base-files/files/bin/config_generate
+
+      - name: 6.下载依赖包
+        run: |
+          cp -f $GITHUB_WORKSPACE/.config $GITHUB_WORKSPACE/immortalwrt-mt798x/
+          cd immortalwrt-mt798x
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          make defconfig
+          cp .config complie_config
+          make download -j8 V=s
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: 7.备份config
+        uses: actions/upload-artifact@master
+        with:
+          name: complie_config
+          path: ${{ github.workspace }}/immortalwrt-mt798x/complie_config
+
+      - name: 8.开始编译
+        run: |
+          cd immortalwrt-mt798x
+          make clean
+          make dirclean
+          make V=s -j$(nproc)
+          echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+      - name: 9.上传固件
+        uses: actions/upload-artifact@master
+        with:
+          name: AX6000_RedMi
+          path: immortalwrt-mt798x/bin
+
+      - name: 10.发布固件
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "${{ env.DEVICE }}--${{ env.FILE_DATE }}"
+          artifacts: "immortalwrt-mt798x/bin/targets/*/*/*"
+          body: |
+            # 未测试×
+            IP: 192.168.31.1 | Password: none
