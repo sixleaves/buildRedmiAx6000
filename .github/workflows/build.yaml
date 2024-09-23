@@ -5,7 +5,7 @@ on:
 env:
   REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
   REPO_BRANCH: openwrt-21.02
-  CONFIG_FILE: config
+  CONFIG_FILE: .config
   DIY_SH: diy-part2.sh
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
@@ -86,6 +86,7 @@ jobs:
           cd immortalwrt-mt798x
           echo -e "$(nproc) thread compile"
           make package/mtk/drivers/mt_wifi/compile V=s
+#          make -j$(nproc)
           echo "::set-output name=status::success"
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
