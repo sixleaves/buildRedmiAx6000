@@ -21,17 +21,27 @@ jobs:
       - name: 1.下载config配置
         uses: actions/checkout@master
 
+      - name: Install GCC 12
+        run: |
+          sudo apt update
+          sudo apt install software-properties-common
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt update
+          sudo apt install gcc-12 g++-12
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 120 --slave /usr/bin/g++ g++ /usr/bin/g++-12
+          sudo update-alternatives --set gcc /usr/bin/gcc-12
+
+      - name: Check GCC version
+        run: |
+          gcc --version
+          g++ --version
+
       - name: 2.安装依赖
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
           sudo -E apt-get -qq update
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt update
-          sudo apt install -y gcc-12 g++-12
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 120 --slave /usr/bin/g++ g++ /usr/bin/g++-12
-          sudo update-alternatives --set gcc /usr/bin/gcc-12
           sudo -E apt-get -qq install \
             ack antlr3 aria2 asciidoc autoconf automake autopoint \
             binutils bison build-essential bzip2 ccache clang clangd \
