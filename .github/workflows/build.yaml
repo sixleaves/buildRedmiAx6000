@@ -21,15 +21,19 @@ jobs:
       - name: 1.下载config配置
         uses: actions/checkout@master
 
-      - name: Install GCC 12
+      - name: Check available GCC versions
         run: |
-          sudo apt update
-          sudo apt install software-properties-common
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-          sudo apt update
-          sudo apt install gcc-12 g++-12
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 120 --slave /usr/bin/g++ g++ /usr/bin/g++-12
-          sudo update-alternatives --set gcc /usr/bin/gcc-12
+          apt-cache search gcc-[0-9]+ | grep '^gcc-[0-9]'
+          apt-cache search g++-[0-9]+ | grep '^g++-[0-9]'
+          
+    - name: Install GCC 11
+      run: |
+        sudo apt update
+        sudo apt install -y gcc-11 g++-11
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11
+        sudo update-alternatives --set gcc /usr/bin/gcc-11
+        gcc --version
+        g++ --version
 
       - name: Check GCC version
         run: |
