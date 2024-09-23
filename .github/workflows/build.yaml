@@ -79,7 +79,7 @@ jobs:
           make defconfig
           cp -f .config complie_config
           for i in {1..3}; do
-            if make download -j8 V=s; then
+            if make download -j$(nproc) V=s; then
               echo "Download successful on attempt $i"
               break
             else
