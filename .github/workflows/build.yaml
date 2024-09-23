@@ -78,7 +78,15 @@ jobs:
           cd immortalwrt-mt798x
           make defconfig
           cp -f .config complie_config
-          make download -j8 V=s
+          for i in {1..3}; do
+            if make download -j8 V=s; then
+              echo "Download successful on attempt $i"
+              break
+            else
+              echo "Download failed on attempt $i, retrying..."
+              sleep 60
+            fi
+          done
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
 
