@@ -20,12 +20,7 @@ jobs:
     steps:
       - name: 1.下载config配置
         uses: actions/checkout@master
-
-      - name: Check available GCC versions
-        run: |
-          apt-cache search gcc-[0-9]+ | grep '^gcc-[0-9]'
-          apt-cache search g++-[0-9]+ | grep '^g++-[0-9]'
-
+        
       - name: Install GCC 11
         run: |
           sudo apt update
