@@ -76,6 +76,7 @@ jobs:
 
       - name: 5.修改默认主题
         run: |
+          cd immortalwrt-mt798x
           sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
           if [ ! -d "package/luci-theme-argon" ]; then
             git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
