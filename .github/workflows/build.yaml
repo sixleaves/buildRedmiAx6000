@@ -125,5 +125,4 @@ jobs:
           tag: "${{ env.DEVICE_NAME }}--${{ env.FILE_DATE }}"
           artifacts: "immortalwrt-mt798x/bin/targets/*/*/*"
           body: |
-            # 未测试×
-            IP: 192.168.31.1 | Password: none
+            IP: 192.168.23.1 | Password: none
