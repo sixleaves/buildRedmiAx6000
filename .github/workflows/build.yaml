@@ -1,7 +1,8 @@
 name: BuildImmortalWRT
 on:
   workflow_dispatch:
-
+  schedule:
+    - cron: '0 22 * * *'
 env:
   REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
   REPO_BRANCH: openwrt-21.02
