@@ -62,7 +62,7 @@ jobs:
           ln -sf /workdir/immortalwrt-mt798x $GITHUB_WORKSPACE/immortalwrt-mt798x
           cd immortalwrt-mt798x
                
-          if [ "$IS_BUILD_PROXY" = "false"]; then
+          if [ "$IS_BUILD_PROXY" = "false" ]; then
             ./scripts/feeds update -a
             ./scripts/feeds install -a  
           else
