@@ -60,8 +60,25 @@ jobs:
           git clone $REPO_URL -b $REPO_BRANCH immortalwrt-mt798x
           ln -sf /workdir/immortalwrt-mt798x $GITHUB_WORKSPACE/immortalwrt-mt798x
           cd immortalwrt-mt798x
+          
+          # 添加kenzok8的软件包源
+          sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
+          sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
+          
+          # 更新feeds
           ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          
+          # 删除可能冲突的包
+          rm -rf feeds/luci/applications/luci-app-mosdns
+          rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
+          rm -rf feeds/packages/utils/v2dat
+          rm -rf feeds/packages/lang/golang          
+
+          # 克隆新版本的golang
+          git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
+          
+          # 安装feeds
+          ./scripts/feeds install -a          
 
       - name: 4.加载配置文件
         run: |
