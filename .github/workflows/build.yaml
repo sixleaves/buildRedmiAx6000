@@ -10,7 +10,7 @@ env:
   DIY_SH: diy-part2.sh
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
-  IS_BUILD_PROXY: false
+  IS_BUILD_PROXY: true
   TZ: Asia/Shanghai
 
 jobs:
