@@ -61,35 +61,31 @@ jobs:
           ln -sf /workdir/immortalwrt-mt798x $GITHUB_WORKSPACE/immortalwrt-mt798x
           cd immortalwrt-mt798x
           
-          # 添加kenzok8的软件包源
+          echo "---------添加kenzok8的软件包源---------"
           sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
           sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
-          
-          # 如果包持续造成问题，考虑移除它们
-          rm -rf feeds/kenzo/{adguardhome,alist}
-          
-          # 更新feeds
+      
+          echo "---------更新feeds---------"
           ./scripts/feeds update -a
           
-          # 删除可能冲突的包
+          echo "---------删除可能冲突的包---------"
+          rm -rf feeds/kenzo/{adguardhome,alist}
           rm -rf feeds/luci/applications/luci-app-mosdns
           rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
           rm -rf feeds/packages/utils/v2dat    
-
-          # 更新 Golang 到最新版本
           rm -rf feeds/packages/lang/golang
+          echo "---------更新Golang到最新版本---------"
           svn export https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
           
-          # 获取最新的 Golang 版本
+          echo "---------获取最新的Golang版本---------"
           LATEST_GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n1)
           MAJOR_MINOR_VERSION=$(echo $LATEST_GO_VERSION | cut -d. -f1-2 | sed 's/^go//')
           
-          # 更新 Golang 版本
+          echo "---------更新 Golang 版本---------"          
           sed -i "s/GO_VERSION_MAJOR_MINOR:=.*/GO_VERSION_MAJOR_MINOR:=$MAJOR_MINOR_VERSION/" feeds/packages/lang/golang/golang-version.mk
-          
           echo "Using Golang version: $MAJOR_MINOR_VERSION"
           
-          # 安装feeds
+          echo "---------安装feeds---------"           
           ./scripts/feeds install -a          
 
       - name: 4.加载配置文件
