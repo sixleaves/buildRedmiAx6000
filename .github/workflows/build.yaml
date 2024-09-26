@@ -71,11 +71,20 @@ jobs:
           # 删除可能冲突的包
           rm -rf feeds/luci/applications/luci-app-mosdns
           rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
-          rm -rf feeds/packages/utils/v2dat
-          rm -rf feeds/packages/lang/golang          
+          rm -rf feeds/packages/utils/v2dat    
 
-          # 克隆新版本的golang
-          git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
+          # 更新 Golang 到最新版本
+          rm -rf feeds/packages/lang/golang
+          svn export https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
+          
+          # 获取最新的 Golang 版本
+          LATEST_GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n1)
+          MAJOR_MINOR_VERSION=$(echo $LATEST_GO_VERSION | cut -d. -f1-2 | sed 's/^go//')
+          
+          # 更新 Golang 版本
+          sed -i "s/GO_VERSION_MAJOR_MINOR:=.*/GO_VERSION_MAJOR_MINOR:=$MAJOR_MINOR_VERSION/" feeds/packages/lang/golang/golang-version.mk
+          
+          echo "Using Golang version: $MAJOR_MINOR_VERSION"
           
           # 安装feeds
           ./scripts/feeds install -a          
