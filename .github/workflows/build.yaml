@@ -105,7 +105,6 @@ jobs:
           cd immortalwrt-mt798x
           # 配置代理
           if [ "$IS_BUILD_PROXY" = "true" ]; then
-            echo "CONFIG_PACKAGE_luci-app-homeproxy=y" >> .config
             echo "CONFIG_PACKAGE_sing-box=y" >> .config
           fi
           make defconfig
