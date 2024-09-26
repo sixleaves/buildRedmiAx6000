@@ -10,7 +10,7 @@ env:
   DIY_SH: diy-part2.sh
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
-  IS_BUILD_PROXY: false
+  IS_BUILD_PROXY: true
   TZ: Asia/Shanghai
 
 jobs:
@@ -67,14 +67,11 @@ jobs:
             ./scripts/feeds install -a  
           else
             echo "---------添加kenzok8的软件包源---------"
-            sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
-            sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
+            sed -i '$a src-git smpackage https://github.com/kenzok8/small-package' feeds.conf.default
             echo "---------更新feeds---------"
             ./scripts/feeds update -a
             echo "---------删除可能冲突的包---------"
-            rm -rf feeds/luci/applications/luci-app-mosdns
-            rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
-            rm -rf feeds/packages/utils/v2dat    
+            rm -rf feeds/smpackage/{base-files,dnsmasq,firewall*,fullconenat,libnftnl,nftables,ppp,opkg,ucl,upx,vsftpd*,miniupnpd-iptables,wireless-regdb}
             rm -rf feeds/packages/lang/golang
             echo "---------更新Golang到最新版本---------"
             git clone https://github.com/kenzok8/golang feeds/packages/lang/golang 
