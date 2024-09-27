@@ -34,4 +34,3 @@ jobs:
           tag: "UBoot--${{ env.FILE_DATE }}"
           artifacts: "bl-mt798x/output/*"
           body: "UBoot"
-          token: ${{ secrets.RELEASE_TOKEN }}
