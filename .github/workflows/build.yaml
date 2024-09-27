@@ -71,7 +71,7 @@ jobs:
             echo "---------更新feeds---------"
             ./scripts/feeds update -a
             echo "---------删除可能冲突的包---------"
-            rm -rf feeds/smpackage/{dnsmasq,fullconenat,ppp,opkg,ucl,upx,vsftpd*,miniupnpd-iptables,wireless-regdb,dae,daed,daed-next}
+            rm -rf feeds/smpackage/{base-files,dnsmasq,firewall*,fullconenat,libnftnl,nftables,ppp,opkg,ucl,upx,vsftpd*,miniupnpd-iptables,wireless-regdb,dae,daed,daed-next}
             rm -rf feeds/packages/lang/golang
             echo "---------更新Golang到最新版本---------"
             git clone https://github.com/kenzok8/golang feeds/packages/lang/golang 
