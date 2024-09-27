@@ -1,0 +1,24 @@
+name: BuildBootLayer
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install depends
+        run: |
+          sudo apt install gcc-aarch64-linux-gnu build-essential flex bison libssl-dev device-tree-compiler
+      - name: Clone Source
+        run: |
+          git clone https://github.com/hanwckf/bl-mt798x.git
+          cd bl-mt798x
+      - name: Build
+        run: |
+          cd bl-mt798x
+          SOC=mt7986 BOARD=redmi_ax6000 ./build.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: redmi_ax6000-fip
+          path: bl-mt798x/output/*
