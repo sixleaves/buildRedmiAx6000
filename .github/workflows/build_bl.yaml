@@ -2,7 +2,7 @@ name: BuildBootLayer
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 15 * * *'
+    - cron: '0 15 * * *
 
 jobs:
   build:
@@ -24,3 +24,11 @@ jobs:
         with:
           name: redmi_ax6000-fip
           path: bl-mt798x/output/*
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "UBoot--${{ env.FILE_DATE }}"
+          artifacts: "bl-mt798x/output/*"
+          body: |
+            UBoot
