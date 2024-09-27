@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    permissions:
+      contents: write
     steps:
       - name: Install depends
         run: |
@@ -31,5 +33,5 @@ jobs:
         with:
           tag: "UBoot--${{ env.FILE_DATE }}"
           artifacts: "bl-mt798x/output/*"
-          body: |
-            UBoot
+          body: "UBoot"
+          token: ${{ secrets.RELEASE_TOKEN }}
