@@ -10,6 +10,7 @@ jobs:
     steps:
       - name: Install depends
         run: |
+          echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
           sudo apt install gcc-aarch64-linux-gnu build-essential flex bison libssl-dev device-tree-compiler
       - name: Clone Source
         run: |
