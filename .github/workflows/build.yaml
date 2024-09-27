@@ -70,8 +70,8 @@ jobs:
             sed -i '$a src-git smpackage https://github.com/kenzok8/small-package' feeds.conf.default
             echo "---------更新feeds---------"
             ./scripts/feeds update -a
-            echo "---------删除可能冲突的包---------"
-            rm -rf feeds/smpackage/{base-files,dnsmasq,firewall*,fullconenat,libnftnl,nftables,ppp,opkg,ucl,upx,vsftpd*,miniupnpd-iptables,wireless-regdb,dae,daed,daed-next}
+            echo "---------删除除了singbox的所有非必须包---------"
+            find feeds/smpackage/ -maxdepth 1 ! -name '.' ! -name 'sing-box*' ! -name 'luci-app-sing-box*' -exec rm -rf {} +
             rm -rf feeds/packages/lang/golang
             echo "---------更新Golang到最新版本---------"
             git clone https://github.com/kenzok8/golang feeds/packages/lang/golang 
