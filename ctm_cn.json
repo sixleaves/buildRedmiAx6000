@@ -1,1 +1,11 @@
-
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain_suffix": [
+         "pan.mediy.cn",
+          "mediycn-my.sharepoint.com"
+      ]
+    }
+  ]
+}
