@@ -3,7 +3,6 @@
   "rules": [
     {
       "domain_suffix": [
-        // 抖音相关域名
         "douyin.com",
         "douyincdn.com",
         "douyinvod.com",
@@ -23,7 +22,6 @@
         "ixigua.com",
         "oceanengine.com",
         
-        // 快手相关域名
         "kuaishou.com",
         "kwimgs.com",
         "kwaicdn.com",
@@ -42,8 +40,7 @@
         "kwaishop.com",
         "kwaitv.com",
         "kwaiapps.com",
-        
-        // 百度相关域名
+      
         "baidu.com",
         "baidubce.com",
         "bdstatic.com",
@@ -60,8 +57,7 @@
         "apollo.auto",
         "baidu-int.com",
         "baiduyundns.com",
-        
-        // 仅微信视频号相关域名（保留微信核心功能）
+      
         "channels.weixin.qq.com",
         "wxsnsdythumb.wxs.qq.com",
         "finder.video.qq.com",
