@@ -74,7 +74,36 @@
         "webcdn.video.qq.com",
         "canvas-cdn.gdt.qq.com",
         "otheve.beacon.qq.com",
-        "h.trace.qq.com"
+        "h.trace.qq.com",
+
+        "xiaohongshu.com",
+        "xhscdn.com",
+        "xhscdn.net",
+        "xhsstatic.com",
+        "xhsimg.com",
+        "xhslink.com",
+        "xiaohongshu.net",
+        "xiaohongshuvip.com",
+        "fengkongcloud.com",
+
+        "ixigua.com",
+        "ixiguavideo.com",
+        "ixigua.video",
+        
+        "toutiao.com",
+        "toutiao.video",
+        "toutiaocloud.com",
+        "toutiaocdn.com",
+        "toutiaoimg.com",
+        "toutiaovod.com",
+        "toutiao.net",
+        
+        "weibo.com",
+        "weibocdn.com",
+        "weibovideo.com",
+        "weibovideocdn.com",
+        "weibosdk.com",
+        "weibousercontent.com"
       ]
     }
   ]
