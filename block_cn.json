@@ -82,7 +82,9 @@
         "wxavoipfinderliveplay.video.qq.com",
         ".wxqcloud.qq.com",
         ".video.qq.com",
-        "mlvbdc.live.qcloud.com"
+        "mlvbdc.live.qcloud.com",
+        "wxvideo.tc.qq.com",
+        "webcdn.video.qq.com"
       ]
     }
   ]
