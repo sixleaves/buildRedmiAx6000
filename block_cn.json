@@ -21,6 +21,7 @@
         "gifshow.com",
         "ixigua.com",
         "oceanengine.com",
+        "api6-normal-lq.amemv.com",
         
         "kuaishou.com",
         "kwimgs.com",
@@ -70,7 +71,10 @@
         "video.qq.com",
         "mlvbdc.live.qcloud.com",
         "wxvideo.tc.qq.com",
-        "webcdn.video.qq.com"
+        "webcdn.video.qq.com",
+        "canvas-cdn.gdt.qq.com",
+        "otheve.beacon.qq.com",
+        "h.trace.qq.com"
       ]
     }
   ]
