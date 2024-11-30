@@ -102,7 +102,9 @@
         "weibovideo.com",
         "weibovideocdn.com",
         "weibosdk.com",
-        "weibousercontent.com"
+        "weibousercontent.com",
+
+        "dns.jd.com"
       ]
     }
   ]
