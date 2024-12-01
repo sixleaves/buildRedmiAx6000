@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "rules": [
     {
       "domain_suffix": [
@@ -97,9 +97,9 @@
         "toutiaovod.com",
         "toutiao.net",
 
-        "weibo.cn",
-        "weibo.com",
-        "weibocdn.com",
+        ".weibo.cn",
+        ".weibo.com",
+        ".weibocdn.com",
         "f.video.weibocdn.com",
         "video.weibocdn.com",
         "weibovideo.com",
