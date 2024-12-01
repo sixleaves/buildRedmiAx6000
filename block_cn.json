@@ -22,7 +22,7 @@
         "ixigua.com",
         "oceanengine.com",
         "api6-normal-lq.amemv.com",
-        
+
         "kuaishou.com",
         "kwimgs.com",
         "kwaicdn.com",
@@ -41,7 +41,7 @@
         "kwaishop.com",
         "kwaitv.com",
         "kwaiapps.com",
-      
+
         "baidu.com",
         "baidubce.com",
         "bdstatic.com",
@@ -58,11 +58,10 @@
         "apollo.auto",
         "baidu-int.com",
         "baiduyundns.com",
-      
+
         "channels.weixin.qq.com",
         "wxsnsdythumb.wxs.qq.com",
         "finder.video.qq.com",
-        "vweixinthumb.tc.qq.com",
         "vwebcloud.video.qq.com",
         "video.qq.com",
         "mlvbdc.live.qcloud.com",
@@ -85,7 +84,7 @@
         "ixigua.com",
         "ixiguavideo.com",
         "ixigua.video",
-        
+
         "toutiao.com",
         "toutiao.video",
         "toutiaocloud.com",
@@ -103,6 +102,12 @@
         "weibovideocdn.com",
         "weibosdk.com",
         "weibousercontent.com"
+      ],
+      "domain": [
+        "weibo.com",
+        "weibo.cn",
+        "f.video.weibocdn.com",
+        "weibocdn.com"
       ]
     }
   ]
