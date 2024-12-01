@@ -105,12 +105,7 @@
         "weibovideo.com",
         "weibovideocdn.com",
         "weibosdk.com",
-        "weibousercontent.com",
-
-        "dns.jd.com",
-        "dns.weixin.qq.com.cn",
-        "dns.weixin.qq.com",
-        "udns.weixin.qq.com"
+        "weibousercontent.com"
       ]
     }
   ]
