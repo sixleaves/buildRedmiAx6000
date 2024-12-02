@@ -135,6 +135,9 @@
       ],
       "domain_regex": [
         "^finder[a-zA-Z0-9]+\\.video\\.qq\\.com$"
+      ],
+      "ip_cidr": [
+        "222.73.168.16/24"
       ]
     }
   ]
