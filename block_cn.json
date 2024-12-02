@@ -130,6 +130,9 @@
       "domain_keyword": [
         "finderpdd.video.qq.com",
         "finderhy.video.qq.com"
+      ],
+      "domain_regex": [
+        "^finder[a-zA-Z0-9]+\\.video\\.qq\\.com$"
       ]
     }
   ]
