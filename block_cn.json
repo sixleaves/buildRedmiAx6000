@@ -104,8 +104,7 @@
         "weibousercontent.com",
         "dns.weixin.qq.com.cn",
         "dns.weixin.qq.com",
-        "udns.weixin.qq.com",
-        ""
+        "udns.weixin.qq.com"
       ],
       "domain": [
         "weibo.com",
@@ -125,8 +124,7 @@
         "h.trace.qq.com",
         "dns.weixin.qq.com.cn",
         "dns.weixin.qq.com",
-        "udns.weixin.qq.com",
-        ""
+        "udns.weixin.qq.com"
       ]
     }
   ]
