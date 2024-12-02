@@ -101,7 +101,11 @@
         "weibovideo.com",
         "weibovideocdn.com",
         "weibosdk.com",
-        "weibousercontent.com"
+        "weibousercontent.com",
+        "dns.weixin.qq.com.cn",
+        "dns.weixin.qq.com",
+        "udns.weixin.qq.com",
+        ""
       ],
       "domain": [
         "weibo.com",
@@ -118,7 +122,11 @@
         "webcdn.video.qq.com",
         "canvas-cdn.gdt.qq.com",
         "otheve.beacon.qq.com",
-        "h.trace.qq.com"
+        "h.trace.qq.com",
+        "dns.weixin.qq.com.cn",
+        "dns.weixin.qq.com",
+        "udns.weixin.qq.com",
+        ""
       ]
     }
   ]
