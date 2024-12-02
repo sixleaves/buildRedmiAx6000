@@ -107,7 +107,18 @@
         "weibo.com",
         "weibo.cn",
         "f.video.weibocdn.com",
-        "weibocdn.com"
+        "weibocdn.com",
+        "channels.weixin.qq.com",
+        "wxsnsdythumb.wxs.qq.com",
+        "finder.video.qq.com",
+        "vwebcloud.video.qq.com",
+        "video.qq.com",
+        "mlvbdc.live.qcloud.com",
+        "wxvideo.tc.qq.com",
+        "webcdn.video.qq.com",
+        "canvas-cdn.gdt.qq.com",
+        "otheve.beacon.qq.com",
+        "h.trace.qq.com"
       ]
     }
   ]
