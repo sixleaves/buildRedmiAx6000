@@ -122,36 +122,7 @@
         "webcdn.video.qq.com",
         "canvas-cdn.gdt.qq.com",
         "otheve.beacon.qq.com",
-        "h.trace.qq.com",
-        "dns.weixin.qq.com.cn",
-        "dns.weixin.qq.com",
-        "udns.weixin.qq.com",
-        "finderhy.video.qq.com",
-        "sgshort.wechat.com"
-      ],
-      "domain_keyword": [
-        "finderpdd.video.qq.com",
-        "finderhy.video.qq.com",
-        "stodownload"
-      ],
-      "domain_regex": [
-        "^finder[a-zA-Z0-9]+\\.video\\.qq\\.com$"
-      ],
-      "ip_cidr": [
-        "36.25.1.1/16",
-        "60.188.1.1/16",
-        "61.170.1.1/16",
-        "61.164.1.1/16",
-        "106.227.1.1/16",
-        "106.225.1.1/16",
-        "115.223.1.1/16",
-        "115.231.1.1/16",
-        "115.233.1.1/16",
-        "112.228.1.1/16",
-        "118.212.1.1/16",
-        "183.212.1.1/16",
-        "183.131.1.1/16",
-        "222.73.1.1/16"
+        "h.trace.qq.com"
       ]
     }
   ]
