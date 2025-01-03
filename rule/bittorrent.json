@@ -1,0 +1,67 @@
+{
+  "version": 2,
+  "rules": [
+    {
+      "domain": [
+        "router.bittorrent.com",
+        "router.utorrent.com",
+        "dht.transmissionbt.com",
+        "dht.libtorrent.org",
+        "tracker.opentrackr.org",
+        "open.demonii.com",
+        "open.stealth.si",
+        "tracker.torrent.eu.org",
+        "explodie.org",
+        "tracker.qu.ax",
+        "tracker.ololosh.space",
+        "tracker.bittor.pw",
+        "public.tracker.vraphim.com",
+        "opentracker.io",
+        "tracker810.xyz",
+        "tracker.corpscorp.online",
+        "finbytes.org",
+        "bt1.xxxxbt.cc",
+        "tracker.tiny-vps.com",
+        "tracker.dump.cl",
+        "tracker.0x7c0.com",
+        "p4p.arenabg.com",
+        "isk.richardsw.club",
+        "discord.heihachi.pw",
+        "tracker.openbittorrent.com",
+        "exodus.desync.com",
+        "tracker.coppersurfer.tk",
+        "tracker.leechers-paradise.org",
+        "tracker.internetwarriors.net",
+        "tracker.cyberia.is",
+        "tracker.moeking.me",
+        "tracker.army",
+        "1337.abcvg.info",
+        "opentor.org",
+        "t.nyaatracker.com",
+        "tracker.sbsub.com"
+      ]
+    },
+    {
+      "ip_cidr": [
+        "93.158.213.92/32",
+        "23.134.89.9/32",
+        "185.243.218.213/32",
+        "89.234.156.205/32",
+        "23.157.120.14/32",
+        "45.154.96.35/32",
+        "35.227.59.57/32",
+        "51.159.89.93/32",
+        "83.146.81.79/32",
+        "23.153.248.83/32",
+        "185.230.4.150/32",
+        "34.94.76.146/32",
+        "34.89.91.10/32",
+        "208.83.20.20/32",
+        "109.201.133.100/32",
+        "5.206.13.166/32",
+        "37.235.174.46/32",
+        "185.83.215.123/32"
+      ]
+    }
+  ]
+}
