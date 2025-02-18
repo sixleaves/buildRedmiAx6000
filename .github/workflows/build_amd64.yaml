@@ -74,8 +74,6 @@ jobs:
           if [ -e $CONFIG_FILE ]; then
             cp -f $CONFIG_FILE $GITHUB_WORKSPACE/$REPO_NAME/
             mv $GITHUB_WORKSPACE/$REPO_NAME/$CONFIG_FILE $GITHUB_WORKSPACE/$REPO_NAME/.config
-            cd $GITHUB_WORKSPACE/$REPO_NAME
-            make oldconfig
           else
             echo "Config file $CONFIG_FILE not found. Exiting..."
             exit 1
