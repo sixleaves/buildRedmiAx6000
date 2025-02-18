@@ -126,9 +126,9 @@ jobs:
 
       - name: 5.自定义固件
         run: |
-          cd mycode
+          cd $GITHUB_WORKSPACE/mycode
           sudo chmod 777 patch_mycode.sh
-          ./patch_mycode.sh /workdir/$REPO_NAME /workdir/mycode amd64
+          ./patch_mycode.sh $GITHUB_WORKSPACE/$REPO_NAME $GITHUB_WORKSPACE/mycode amd64
 
       - name: 6.加载配置文件
         run: |
