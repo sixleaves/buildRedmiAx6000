@@ -29,83 +29,15 @@ jobs:
         run: |
           sudo apt update -y
           sudo apt full-upgrade -y
-          sudo apt install -y ack
-          sudo apt install -y antlr3
-          sudo apt install -y asciidoc
-          sudo apt install -y autoconf
-          sudo apt install -y automake
-          sudo apt install -y autopoint
-          sudo apt install -y binutils
-          sudo apt install -y bison
-          sudo apt install -y build-essential
-          sudo apt install -y bzip2
-          sudo apt install -y ccache
-          sudo apt install -y clang
-          sudo apt install -y cmake
-          sudo apt install -y cpio
-          sudo apt install -y curl
-          sudo apt install -y device-tree-compiler
-          sudo apt install -y ecj
-          sudo apt install -y fastjar
-          sudo apt install -y flex
-          sudo apt install -y gawk
-          sudo apt install -y gettext
-          sudo apt install -y gcc-multilib
-          sudo apt install -y g++-multilib
-          sudo apt install -y git
-          sudo apt install -y gnutls-dev
-          sudo apt install -y gperf
-          sudo apt install -y haveged
-          sudo apt install -y help2man
-          sudo apt install -y intltool
-          sudo apt install -y lib32gcc-s1
-          sudo apt install -y libc6-dev-i386
-          sudo apt install -y libelf-dev
-          sudo apt install -y libglib2.0-dev
-          sudo apt install -y libgmp3-dev
-          sudo apt install -y libltdl-dev
-          sudo apt install -y libmpc-dev
-          sudo apt install -y libmpfr-dev
-          sudo apt install -y libncurses-dev
-          sudo apt install -y libpython3-dev
-          sudo apt install -y libreadline-dev
-          sudo apt install -y libssl-dev
-          sudo apt install -y libtool
-          sudo apt install -y libyaml-dev
-          sudo apt install -y libz-dev
-          sudo apt install -y lld
-          sudo apt install -y llvm
-          sudo apt install -y lrzsz
-          sudo apt install -y mkisofs
-          sudo apt install -y msmtp
-          sudo apt install -y nano
-          sudo apt install -y ninja-build
-          sudo apt install -y p7zip
-          sudo apt install -y p7zip-full
-          sudo apt install -y patch
-          sudo apt install -y pkgconf
-          sudo apt install -y python3
-          sudo apt install -y python3-pip
-          sudo apt install -y python3-ply
-          sudo apt install -y python3-docutils
-          sudo apt install -y python3-pyelftools
-          sudo apt install -y qemu-utils
-          sudo apt install -y re2c
-          sudo apt install -y rsync
-          sudo apt install -y scons
-          sudo apt install -y squashfs-tools
-          sudo apt install -y subversion
-          sudo apt install -y swig
-          sudo apt install -y texinfo
-          sudo apt install -y uglifyjs
-          sudo apt install -y upx-ucl
-          sudo apt install -y unzip
-          sudo apt install -y vim
-          sudo apt install -y wget
-          sudo apt install -y xmlto
-          sudo apt install -y xxd
-          sudo apt install -y zlib1g-dev
-          sudo apt install -y zstd
+          sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+            bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+            g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
+            libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev \
+            libreadline-dev libssl-dev libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp nano \
+            ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils \
+            python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs \
+            upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
+          sudo apt install -y jq
           sudo -E apt-get -qq autoremove --purge
           sudo -E apt-get -qq clean
           sudo timedatectl set-timezone "$TZ"
@@ -126,9 +58,14 @@ jobs:
 
       - name: 5.自定义固件
         run: |
-          cd $GITHUB_WORKSPACE/mycode
-          sudo chmod 777 patch_mycode.sh
-          ./patch_mycode.sh $GITHUB_WORKSPACE/$REPO_NAME $GITHUB_WORKSPACE/mycode amd64
+          if [ -d "$GITHUB_WORKSPACE/mycode" ] && [ -f "$GITHUB_WORKSPACE/mycode/patch_mycode.sh" ]; then
+            cd $GITHUB_WORKSPACE/mycode
+            sudo chmod 777 patch_mycode.sh
+            ./patch_mycode.sh $GITHUB_WORKSPACE/$REPO_NAME $GITHUB_WORKSPACE/mycode amd64
+          else
+            echo "mycode directory or patch_mycode.sh not found. Exiting..."
+            exit 1
+          fi
 
       - name: 6.加载配置文件
         run: |
