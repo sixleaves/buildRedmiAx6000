@@ -128,7 +128,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: amd64_x86
-          path: $REPO_NAME/bin
+          path: immortalwrt/bin
 
       - name: 15.删除最近的发布和版本
         env:
@@ -153,6 +153,6 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: "${{ env.DEVICE_NAME }}--${{ env.FILE_DATE }}"
-          artifacts: "$REPO_NAME/bin/targets/*/*/*"
+          artifacts: "immortalwrt/bin/targets/*/*/*"
           body: |
             IP: 192.168.31.1 | Password: none
