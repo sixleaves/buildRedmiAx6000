@@ -1,0 +1,176 @@
+name: BuildArm64RdAX6000
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 15 16 * *'
+env:
+  REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
+  REPO_BRANCH: openwrt-21.02
+  CONFIG_FILE: .config
+  UPLOAD_FIRMWARE: true
+  UPLOAD_RELEASE: true
+  IS_BUILD_PROXY: true
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: 1.下载config配置
+        uses: actions/checkout@master
+
+      - name: 2.安装依赖
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt update
+          sudo apt install gcc-11 g++-11
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install \
+            ack antlr3 aria2 asciidoc autoconf automake autopoint \
+            binutils bison build-essential bzip2 ccache clang clangd \
+            cmake cpio curl device-tree-compiler ecj fastjar flex gawk \
+            gettext gcc-multilib g++-multilib git gperf haveged help2man \
+            intltool lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev \
+            libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev \
+            libncursesw5 libncursesw5-dev libpython3-dev libreadline-dev \
+            libssl-dev libtool lld lldb lrzsz mkisofs msmtp nano neofetch \
+            ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 \
+            python3-pip python3-ply python-docutils qemu-utils re2c rsync \
+            scons squashfs-tools subversion swig texinfo uglifyjs upx \
+            upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          echo "=========gcc --version========="
+          gcc --version
+
+      - name: 3.克隆源代码
+        working-directory: /workdir
+        run: |
+          df -hT $PWD
+          git clone $REPO_URL -b $REPO_BRANCH immortalwrt-mt798x
+          ln -sf /workdir/immortalwrt-mt798x $GITHUB_WORKSPACE/immortalwrt-mt798x
+          cd immortalwrt-mt798x
+               
+          if [ "$IS_BUILD_PROXY" = "false" ]; then
+            ./scripts/feeds update -a
+            ./scripts/feeds install -a  
+          else
+            echo "---------添加kenzok8的软件包源---------"
+            sed -i '$a src-git smpackage https://github.com/kenzok8/small-package' feeds.conf.default
+            echo "---------更新feeds---------"
+            ./scripts/feeds update -a
+            echo "---------删除除了singbox的所有非必须包---------"
+            find feeds/smpackage/ -maxdepth 1 ! -name '.' ! -name 'sing-box*' ! -name 'luci-app-sing-box*' -exec rm -rf {} +
+            rm -rf feeds/packages/lang/golang
+            echo "---------更新Golang到最新版本---------"
+            git clone https://github.com/kenzok8/golang feeds/packages/lang/golang 
+            echo "---------安装feeds---------"           
+            ./scripts/feeds install -a   
+          fi
+          
+       
+
+      - name: 4.加载配置文件
+        run: |
+          ls -l $CONFIG_FILE || echo "Config file not found"
+          ls -l $GITHUB_WORKSPACE
+          [ -e $CONFIG_FILE ] && cp -f $CONFIG_FILE $GITHUB_WORKSPACE/immortalwrt-mt798x/
+
+      - name: 5.修改Lan IP
+        run: |
+          cd immortalwrt-mt798x
+          sed -i 's/192.168.1.1/192.168.31.1/g' package/base-files/files/bin/config_generate
+
+      - name: 5.修改默认主题
+        run: |
+          cd immortalwrt-mt798x
+          sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
+          if [ ! -d "package/luci-theme-argon" ]; then
+            git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+          fi
+
+      - name: 6.下载依赖包
+        run: |
+          cd immortalwrt-mt798x
+          # 配置代理
+          if [ "$IS_BUILD_PROXY" = "true" ]; then
+            echo "CONFIG_PACKAGE_sing-box=y" >> .config
+          fi
+          make defconfig
+          cp -f .config complie_config
+          for i in {1..3}; do
+            if make download -j$(nproc) V=s; then
+              echo "Download successful on attempt $i"
+              break
+            else
+              echo "Download failed on attempt $i, retrying..."
+              sleep 60
+            fi
+          done
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: 7.备份config
+        uses: actions/upload-artifact@master
+        with:
+          name: complie_config
+          path: ${{ github.workspace }}/immortalwrt-mt798x/complie_config
+
+      - name: 8.开始编译
+        run: |
+          cd immortalwrt-mt798x
+          echo -e "$(nproc) thread compile"
+          make -j$(nproc)
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | sed 's/^_//' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+      - name: 9.生成SHA256校验和
+        run: |
+          cd immortalwrt-mt798x/bin/targets/*/*
+          sha256sum *.bin > sha256sums.txt
+          cat sha256sums.txt
+
+      - name: 10.上传bin目录
+        uses: actions/upload-artifact@master
+        with:
+          name: AX6000_RedMi
+          path: immortalwrt-mt798x/bin
+
+      # - name: 11.删除最近的发布和版本
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     # Get the latest release
+      #     latest_release=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+      #       "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+
+      #     # Extract the tag name and release ID
+      #     tag_name=$(echo $latest_release | jq -r .tag_name)
+      #     release_id=$(echo $latest_release | jq -r .id)
+
+      #     # Delete the release
+      #     curl -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
+      #       "https://api.github.com/repos/${{ github.repository }}/releases/$release_id"
+
+      #     # Delete the tag
+      #     git push --delete origin $tag_name
+
+      - name: 12.发布固件
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "${{ env.DEVICE_NAME }}--${{ env.FILE_DATE }}"
+          artifacts: "immortalwrt-mt798x/bin/targets/*/*/*"
+          body: |
+            IP: 192.168.31.1 | Password: none
