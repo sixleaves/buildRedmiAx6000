@@ -95,6 +95,7 @@ jobs:
       - name: 9.下载依赖包
         run: |
           cd $REPO_NAME
+          make defconfig
           for i in {1..3}; do
             if make download -j$(nproc) V=s; then
               echo "Download successful on attempt $i"
