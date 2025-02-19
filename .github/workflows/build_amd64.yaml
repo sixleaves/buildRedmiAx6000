@@ -42,7 +42,7 @@ jobs:
         run: |
           cd immortalwrt-imagebuilder-x86-64.Linux-x86_64
           echo -e "$(nproc) thread compile"
-          make image PROFILE="generic" PACKAGES="-mtd -kmod-e1000e -kmod-i40e -kmod-igb -kmod-igbvf -kmod-ixgbe -kmod-ixgbevf -kmod-pcnet32 -kmod-tulip -kmod-vmxnet3 -kmod-r8101 -kmod-r8125 -kmod-r8126 -kmod-r8168 -kmod-8139cp -kmod-8139too"
+          make image PROFILE="generic" PACKAGES="-mtd -kmod-e1000e -kmod-i40e -kmod-igb -kmod-igbvf -kmod-ixgbe -kmod-ixgbevf -kmod-pcnet32 -kmod-tulip -kmod-vmxnet3 -kmod-r8101 -kmod-r8125 -kmod-r8126 -kmod-r8168 -kmod-8139cp -kmod-8139too -kmod-fs-f2fs"
       - name: 6.上传bin目录
         uses: actions/upload-artifact@master
         with:
