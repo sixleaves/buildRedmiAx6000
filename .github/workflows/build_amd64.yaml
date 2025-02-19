@@ -26,7 +26,9 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt update
-          sudo apt install build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils
+          sudo apt full-upgrade -y
+          sudo apt install build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3
+          sudo apt -E install python3-distutils
 
       - name: 3.下载IB
         working-directory: /workdir
