@@ -21,7 +21,6 @@ jobs:
     steps:
       - name: 1.下载config配置
         uses: actions/checkout@master
-
       - name: 2.安装依赖
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -119,13 +118,11 @@ jobs:
           done
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
-
       - name: 7.备份config
         uses: actions/upload-artifact@master
         with:
           name: complie_config
           path: ${{ github.workspace }}/immortalwrt-mt798x/complie_config
-
       - name: 8.开始编译
         run: |
           cd immortalwrt-mt798x
