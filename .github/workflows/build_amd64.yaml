@@ -44,18 +44,14 @@ jobs:
         run: |
           sudo apt update
           sudo apt install build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3
-          sudo mkdir -p /workdir
-          sudo chown $USER:$GROUPS /workdir
 
       - name: 3.下载IB
-        working-directory: /workdir
         run: |
           df -hT $PWD
           wget https://github.com/sixleaves/buildOP4Six/releases/download/immortalwrt--202502191859--openwrt-24.10/${{ env.IB_NAME }}.tar.zst -O ${{ env.IB_NAME }}.tar.zst
           tar -I zstd -xvf ${{ env.IB_NAME }}.tar.zst
 
       - name: 5.构建固件
-        working-directory: /workdir
         run: |
           cd ${{ env.IB_NAME }}
           echo -e "$(nproc) thread compile"
