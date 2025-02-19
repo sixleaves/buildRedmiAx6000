@@ -126,7 +126,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: amd64_x86
-          path: immortalwrt/bin
+          path: immortalwrt/bin/targets/x86/64
 
       - name: 15.删除最近的发布和版本
         env:
