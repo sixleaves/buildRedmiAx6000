@@ -134,38 +134,13 @@ jobs:
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
-      - name: 11.生成SHA256校验和
-        run: |
-          cd $REPO_NAME/bin/targets/*/*
-          sha256sum *.bin > sha256sums.txt
-          cat sha256sums.txt
-
-      - name: 12.上传bin目录
+      - name: 11.上传bin目录
         uses: actions/upload-artifact@master
         with:
           name: amd64_x86
           path: immortalwrt/bin/targets/x86/64
 
-      - name: 13.删除最近的发布和版本
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          latest_release=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/latest")
-          
-          if [ "$(echo $latest_release | jq -r '.message')" != "Not Found" ]; then
-            tag_name=$(echo $latest_release | jq -r .tag_name)
-            release_id=$(echo $latest_release | jq -r .id)
-            
-            # Delete the release
-            curl -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
-              "https://api.github.com/repos/${{ github.repository }}/releases/$release_id"
-            
-            # Delete the tag
-            git push --delete origin $tag_name || true
-          fi
-
-      - name: 14.发布固件
+      - name: 12.发布固件
         uses: ncipollo/release-action@v1
         with:
           tag: "${{ env.FIRMWARE_NAME }}--${{ env.FILE_DATE }}--${{ env.REPO_BRANCH }}"
