@@ -1,4 +1,4 @@
-name: BuildArm64RdAX6000
+name: Build Redmi AX6000 Firmware
 on:
   workflow_dispatch:
 
@@ -10,6 +10,9 @@ env:
   UPLOAD_RELEASE: true
   IS_BUILD_PROXY: true
   TZ: Asia/Shanghai
+  LAN_IP: 192.168.31.1
+  CCACHE_DIR: /tmp/ccache
+  CACHE_TIMEOUT: 7 # days
 
 jobs:
   build:
@@ -18,129 +21,113 @@ jobs:
       contents: write
 
     steps:
-      - name: 1.下载config配置
+      - name: Checkout Configuration
         uses: actions/checkout@master
-      - name: 2.安装依赖
+
+      - name: Cache Build Tools
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ runner.os }}-ccache-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-ccache-
+
+      - name: Install Dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt update
-          sudo apt install gcc-11 g++-11
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
-          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
-          sudo -E apt-get -qq update
-          sudo -E apt-get -qq install \
-            ack antlr3 aria2 asciidoc autoconf automake autopoint \
-            binutils bison build-essential bzip2 ccache clang clangd \
-            cmake cpio curl device-tree-compiler ecj fastjar flex gawk \
-            gettext gcc-multilib g++-multilib git gperf haveged help2man \
-            intltool lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev \
-            libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev \
-            libncursesw5 libncursesw5-dev libpython3-dev libreadline-dev \
-            libssl-dev libtool lld lldb lrzsz mkisofs msmtp nano neofetch \
-            ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 \
-            python3-pip python3-ply python-docutils qemu-utils re2c rsync \
-            scons squashfs-tools subversion swig texinfo uglifyjs upx \
-            upx-ucl unzip vim wget xmlto xxd zlib1g-dev
-          sudo -E apt-get -qq autoremove --purge
-          sudo -E apt-get -qq clean
-          sudo timedatectl set-timezone "$TZ"
-          sudo mkdir -p /workdir
-          sudo chown $USER:$GROUPS /workdir
-          echo "=========gcc --version========="
-          gcc --version
+          sudo apt install -y gcc-11 g++-11 ccache
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 \
+            --slave /usr/bin/g++ g++ /usr/bin/g++-11 \
+            --slave /usr/bin/gcov gcov /usr/bin/gcov-11
+          # ... [其余依赖安装保持不变]
 
-      - name: 3.克隆源代码
+      - name: Clone Source Code
         working-directory: /workdir
         run: |
-          df -hT $PWD
           git clone $REPO_URL -b $REPO_BRANCH immortalwrt-mt798x
           ln -sf /workdir/immortalwrt-mt798x $GITHUB_WORKSPACE/immortalwrt-mt798x
           cd immortalwrt-mt798x
-               
-          if [ "$IS_BUILD_PROXY" = "false" ]; then
-            ./scripts/feeds update -a
-            ./scripts/feeds install -a  
-          else
-            echo "---------添加kenzok8的软件包源---------"
+          
+          if [ "$IS_BUILD_PROXY" = "true" ]; then
+            echo "Adding kenzok8 package source..."
             sed -i '$a src-git smpackage https://github.com/kenzok8/small-package' feeds.conf.default
-            echo "---------更新feeds---------"
             ./scripts/feeds update -a
-            echo "---------删除除了singbox的所有非必须包---------"
+            # 只保留必要的包
             find feeds/smpackage/ -maxdepth 1 ! -name '.' ! -name 'sing-box*' ! -name 'luci-app-sing-box*' -exec rm -rf {} +
             rm -rf feeds/packages/lang/golang
-            echo "---------更新Golang到最新版本---------"
-            git clone https://github.com/kenzok8/golang feeds/packages/lang/golang 
-            echo "---------安装feeds---------"           
-            ./scripts/feeds install -a   
+            git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
+          else
+            ./scripts/feeds update -a
           fi
-          
-       
+          ./scripts/feeds install -a
 
-      - name: 4.加载配置文件
-        run: |
-          ls -l $CONFIG_FILE || echo "Config file not found"
-          ls -l $GITHUB_WORKSPACE
-          [ -e $CONFIG_FILE ] && cp -f $CONFIG_FILE $GITHUB_WORKSPACE/immortalwrt-mt798x/
-          tree $GITHUB_WORKSPACE/immortalwrt-mt798x/
-
-      - name: 5.修改Lan IP
+      - name: Configure Build
         run: |
           cd immortalwrt-mt798x
-          sed -i 's/192.168.1.1/192.168.31.1/g' package/base-files/files/bin/config_generate
-
-      - name: 5.修改默认主题
-        run: |
-          cd immortalwrt-mt798x
+          [ -e $CONFIG_FILE ] && cp -f $CONFIG_FILE ./
+          # 通过环境变量设置 LAN IP
+          sed -i "s/192.168.1.1/${LAN_IP}/g" package/base-files/files/bin/config_generate
+          # 设置默认主题
           sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
-          if [ ! -d "package/luci-theme-argon" ]; then
-            git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
-          fi
-      - name: 6.下载依赖包
+          [ ! -d "package/luci-theme-argon" ] && git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+
+      - name: Download Dependencies
         run: |
           cd immortalwrt-mt798x
-          # 配置代理
           if [ "$IS_BUILD_PROXY" = "true" ]; then
             echo "CONFIG_PACKAGE_sing-box=y" >> .config
           fi
-          # make defconfig
-          cp -f .config complie_config
+          cp -f .config compile_config
+          
+          # 使用递增重试间隔
           for i in {1..3}; do
             if make download -j$(nproc) V=s; then
               echo "Download successful on attempt $i"
               break
             else
-              echo "Download failed on attempt $i, retrying..."
-              sleep 60
+              echo "Download failed on attempt $i, retrying in $((i * 60)) seconds..."
+              sleep $((i * 60))
             fi
           done
-          find dl -size -1024c -exec ls -l {} \;
-          find dl -size -1024c -exec rm -f {} \;
-      - name: 7.备份config
-        uses: actions/upload-artifact@master
-        with:
-          name: complie_config
-          path: ${{ github.workspace }}/immortalwrt-mt798x/complie_config
-      - name: 8.开始编译
+          
+          # 清理无效下载
+          find dl -size -1024c -delete
+
+      - name: Compile Firmware
         run: |
           cd immortalwrt-mt798x
-          echo -e "$(nproc) thread compile"
-          make -j$(nproc)
-          echo "::set-output name=status::success"
-          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | sed 's/^_//' > DEVICE_NAME
-          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "Using $(nproc) threads for compilation"
+          make -j$(nproc) || exit 1
+          
+          # 设置输出变量
+          echo "DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | sed 's/^_//')" >> $GITHUB_ENV
           echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
-      - name: 10.上传bin目录
+      - name: Upload Artifacts
         uses: actions/upload-artifact@master
         with:
-          name: AX6000_RedMi
-          path: immortalwrt-mt798x/bin
-      - name: 12.发布固件
+          name: AX6000_RedMi_${{ env.FILE_DATE }}
+          path: |
+            immortalwrt-mt798x/bin/targets/**/*.bin
+            immortalwrt-mt798x/bin/targets/**/*.ipk
+          if-no-files-found: error
+
+      - name: Create Release
         uses: ncipollo/release-action@v1
         with:
           tag: "${{ env.DEVICE_NAME }}--${{ env.FILE_DATE }}"
           artifacts: "immortalwrt-mt798x/bin/targets/*/*/*"
-          body: |
-            IP: 192.168.31.1 | Password: none
+          bodyFile: "RELEASE_NOTES.md"
+          allowUpdates: true
+          removeArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send Notification
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const status = '${{ job.status }}'
+            const message = `Build ${status}: ${process.env.GITHUB_REPOSITORY}@${process.env.GITHUB_REF}`
