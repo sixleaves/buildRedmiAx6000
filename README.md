@@ -1,8 +1,8 @@
-# buildRedmiAx6000
+# buildOP4Six
 ### 一、特性
-- ctm_cn.json用于配置sing-box的自定义国内小众网站的规则集。让这些网站不走代理。
-- 默认的局域网IP断为192.168.23.1/24
-- 使用的固件源代码: [immortalwrt-mt798x](https://github.com/hanwckf/immortalwrt-mt798x)
+- 继承sing-box
+- 自启动脚本
+- 默认的局域网IP断为192.168.31.1/24
 
 ### 二、屏蔽恶意IP段
 **黑名单**
