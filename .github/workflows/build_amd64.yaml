@@ -48,7 +48,7 @@ jobs:
       - name: 3.下载IB
         run: |
           df -hT $PWD
-          wget https://github.com/sixleaves/buildOP4Six/releases/download/immortalwrt--202502191859--openwrt-24.10/${{ env.IB_NAME }}.tar.zst -O ${{ env.IB_NAME }}.tar.zst
+          wget https://github.com/sixleaves/buildOP4Six/releases/download/immortalwrtIB--openwrt-24.10/${{ env.IB_NAME }}.tar.zst -O ${{ env.IB_NAME }}.tar.zst
           tar -I zstd -xvf ${{ env.IB_NAME }}.tar.zst
 
       - name: 5.构建固件
