@@ -1,0 +1,149 @@
+name: BuildAmd64ImageBuilder
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 16 16 * *'
+
+env:
+  REPO_URL: https://github.com/immortalwrt/immortalwrt.git
+  CONFIG_FILE: .config_amd64
+  REPO_NAME: immortalwrt
+  FIRMWARE_NAME: immortalwrt
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 1.获取最新稳定版本
+        id: get_version
+        run: |
+          # 获取所有标签
+          TAGS=$(curl -s https://api.github.com/repos/immortalwrt/immortalwrt/tags | jq -r '.[].name')
+          # 过滤出稳定版本标签（格式如 v24.10.1）并排序
+          LATEST_STABLE=$(echo "$TAGS" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n1)
+          if [ -z "$LATEST_STABLE" ]; then
+            echo "No stable version found, using default branch"
+            echo "REPO_BRANCH=openwrt-24.10" >> $GITHUB_ENV
+          else
+            # 提取主要版本号（如 24.10）并去除v前缀
+            MAIN_VERSION=$(echo $LATEST_STABLE | sed 's/v\([0-9]\+\.[0-9]\+\).*/\1/')
+            echo "REPO_BRANCH=openwrt-$MAIN_VERSION" >> $GITHUB_ENV
+            echo "Using branch: openwrt-$MAIN_VERSION based on tag $LATEST_STABLE"
+          fi
+
+      - name: 2.下载config配置
+        uses: actions/checkout@master
+
+      - name: 3.安装依赖
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt update -y
+          sudo apt full-upgrade -y
+          sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+            bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+            g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
+            libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev \
+            libreadline-dev libssl-dev libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp nano \
+            ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils \
+            python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs \
+            upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
+          sudo apt install -y jq
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          echo "=========gcc --version========="
+          gcc --version
+
+      - name: 4.初始化仓库
+        working-directory: /workdir
+        run: |
+          df -hT $PWD
+          echo "Using branch: $REPO_BRANCH"
+          git clone -b $REPO_BRANCH --single-branch --filter=blob:none $REPO_URL 
+          ln -sf /workdir/$REPO_NAME $GITHUB_WORKSPACE/$REPO_NAME
+          cd $REPO_NAME
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: 5.自定义固件
+        run: |
+          if [ -d "$GITHUB_WORKSPACE/mycode" ] && [ -f "$GITHUB_WORKSPACE/mycode/patch_mycode.sh" ]; then
+            cd $GITHUB_WORKSPACE/mycode
+            sudo chmod 777 patch_mycode.sh
+            ./patch_mycode.sh $GITHUB_WORKSPACE/$REPO_NAME $GITHUB_WORKSPACE/mycode amd64
+          else
+            echo "mycode directory or patch_mycode.sh not found. Exiting..."
+            exit 1
+          fi
+
+      - name: 6.加载配置文件
+        run: |
+          ls -l $CONFIG_FILE || echo "Config file not found"
+          ls -l $GITHUB_WORKSPACE
+          if [ -e $CONFIG_FILE ]; then
+            cp -f $CONFIG_FILE $GITHUB_WORKSPACE/$REPO_NAME/
+            mv $GITHUB_WORKSPACE/$REPO_NAME/$CONFIG_FILE $GITHUB_WORKSPACE/$REPO_NAME/.config
+          else
+            echo "Config file $CONFIG_FILE not found. Exiting..."
+            exit 1
+          fi
+
+      - name: 7.修改Lan IP
+        run: |
+          cd $REPO_NAME
+          sed -i 's/192.168.1.1/192.168.31.1/g' package/base-files/files/bin/config_generate
+
+      - name: 8.修改默认主题
+        run: |
+          cd $REPO_NAME
+          sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
+          if [ ! -d "package/luci-theme-argon" ]; then
+            git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+          fi
+
+      - name: 9.下载依赖包
+        run: |
+          cd $REPO_NAME
+          make defconfig
+          for i in {1..3}; do
+            if make download -j$(nproc) V=s; then
+              echo "Download successful on attempt $i"
+              break
+            else
+              echo "Download failed on attempt $i, retrying..."
+              sleep 60
+            fi
+          done
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: 10.开始编译
+        run: |
+          cd $REPO_NAME
+          echo -e "$(nproc) thread compile"
+          make -j$(nproc)
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | sed 's/^_//' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+      - name: 11.上传bin目录
+        uses: actions/upload-artifact@master
+        with:
+          name: amd64_x86
+          path: immortalwrt/bin/targets/x86/64
+
+      - name: 12.发布IB
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "${{ env.FIRMWARE_NAME }}--${{ env.FILE_DATE }}--${{ env.REPO_BRANCH }}"
+          artifacts: "immortalwrt/bin/targets/x86/64/immortalwrt-imagebuilder-x86-64.*"
+          body: |
+            ImmortalWRT ImageBuilder: ${{ env.REPO_BRANCH }}
