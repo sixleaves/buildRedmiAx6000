@@ -8,7 +8,7 @@ env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt.git
   CONFIG_FILE: .config_amd64
   REPO_NAME: immortalwrt
-  FIRMWARE_NAME: immortalwrt
+  FIRMWARE_NAME: immortalwrtIB
   TZ: Asia/Shanghai
 
 jobs:
@@ -142,7 +142,7 @@ jobs:
       - name: 12.发布IB
         uses: ncipollo/release-action@v1
         with:
-          tag: "${{ env.FIRMWARE_NAME }}--${{ env.FILE_DATE }}--${{ env.REPO_BRANCH }}"
+          tag: "${{ env.FIRMWARE_NAME }}--${{ env.REPO_BRANCH }}"
           artifacts: "immortalwrt/bin/targets/x86/64/immortalwrt-imagebuilder-x86-64.*"
           body: |
             ImmortalWRT ImageBuilder: ${{ env.REPO_BRANCH }}
