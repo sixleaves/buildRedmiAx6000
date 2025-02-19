@@ -78,27 +78,24 @@ jobs:
           sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
           [ ! -d "package/luci-theme-argon" ] && git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 
-      - name: Download Dependencies
-        run: |
-          cd immortalwrt-mt798x
-          if [ "$IS_BUILD_PROXY" = "true" ]; then
-            echo "CONFIG_PACKAGE_sing-box=y" >> .config
-          fi
-          cp -f .config compile_config
-          
-          # 使用递增重试间隔
-          for i in {1..3}; do
-            if make download -j$(nproc) V=s; then
-              echo "Download successful on attempt $i"
-              break
-            else
-              echo "Download failed on attempt $i, retrying in $((i * 60)) seconds..."
-              sleep $((i * 60))
-            fi
-          done
-          
-          # 清理无效下载
-          find dl -size -1024c -delete
+#      - name: Download Dependencies
+#        run: |
+#          cd immortalwrt-mt798x
+#          cp -f .config compile_config
+#
+#          # 使用递增重试间隔
+#          for i in {1..3}; do
+#            if make download -j$(nproc) V=s; then
+#              echo "Download successful on attempt $i"
+#              break
+#            else
+#              echo "Download failed on attempt $i, retrying in $((i * 60)) seconds..."
+#              sleep $((i * 60))
+#            fi
+#          done
+#
+#          # 清理无效下载
+#          find dl -size -1024c -delete
 
       - name: Compile Firmware
         run: |
