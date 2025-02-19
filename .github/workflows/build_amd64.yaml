@@ -71,7 +71,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: "${{ env.FIRMWARE_NAME }}--${{ env.FILE_DATE }}--${{ env.REPO_BRANCH }}"
-          artifacts: "immortalwrt/bin/targets/x86/64/*"
+          artifacts: "immortalwrt-imagebuilder-x86-64.Linux-x86_64/bin/targets/x86/64/*"
           body: |
             ImmortalWRT Version: ${{ env.REPO_BRANCH }}
             IP: 192.168.31.1 | Password: none
