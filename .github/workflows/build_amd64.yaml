@@ -7,6 +7,7 @@ on:
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt.git
   CONFIG_FILE: .config_amd64
+  IB_DIR: immortalwrtIB--openwrt-24.10
   IB_NAME: immortalwrt-imagebuilder-x86-64.Linux-x86_64
   FIRMWARE_NAME: immortalwrt
   TZ: Asia/Shanghai
@@ -49,7 +50,7 @@ jobs:
       - name: 3.下载IB
         run: |
           df -hT $PWD
-          wget https://github.com/sixleaves/buildOP4Six/releases/download/immortalwrtIB--openwrt-24.10/${{ env.IB_NAME }}.tar.zst -O ${{ env.IB_NAME }}.tar.zst
+          wget https://github.com/sixleaves/buildOP4Six/releases/download/${{ env.IB_DIR }}/${{ env.IB_NAME }}.tar.zst -O ${{ env.IB_NAME }}.tar.zst
           tar -I zstd -xvf ${{ env.IB_NAME }}.tar.zst
 
       - name: 5.构建固件
