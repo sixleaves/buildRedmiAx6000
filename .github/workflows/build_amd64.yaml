@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 16 16 * *'
+
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt.git
-  REPO_BRANCH: openwrt-24.10
   CONFIG_FILE: .config_amd64
   REPO_NAME: immortalwrt
   FIRMWARE_NAME: immortalwrt
@@ -18,10 +18,27 @@ jobs:
       contents: write
 
     steps:
-      - name: 1.下载config配置
+      - name: 1.获取最新稳定版本
+        id: get_version
+        run: |
+          # 获取所有标签
+          TAGS=$(curl -s https://api.github.com/repos/immortalwrt/immortalwrt/tags | jq -r '.[].name')
+          # 过滤出稳定版本标签（格式如 v24.10.1）并排序
+          LATEST_STABLE=$(echo "$TAGS" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n1)
+          if [ -z "$LATEST_STABLE" ]; then
+            echo "No stable version found, using default branch"
+            echo "REPO_BRANCH=openwrt-24.10" >> $GITHUB_ENV
+          else
+            # 提取主要版本号（如 24.10）并去除v前缀
+            MAIN_VERSION=$(echo $LATEST_STABLE | sed 's/v\([0-9]\+\.[0-9]\+\).*/\1/')
+            echo "REPO_BRANCH=openwrt-$MAIN_VERSION" >> $GITHUB_ENV
+            echo "Using branch: openwrt-$MAIN_VERSION based on tag $LATEST_STABLE"
+          fi
+
+      - name: 2.下载config配置
         uses: actions/checkout@master
 
-      - name: 2.安装依赖
+      - name: 3.安装依赖
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
@@ -44,10 +61,11 @@ jobs:
           echo "=========gcc --version========="
           gcc --version
 
-      - name: 3.Initing...
+      - name: 4.初始化仓库
         working-directory: /workdir
         run: |
           df -hT $PWD
+          echo "Using branch: $REPO_BRANCH"
           git clone -b $REPO_BRANCH --single-branch --filter=blob:none $REPO_URL 
           ln -sf /workdir/$REPO_NAME $GITHUB_WORKSPACE/$REPO_NAME
           cd $REPO_NAME
@@ -128,29 +146,30 @@ jobs:
           name: amd64_x86
           path: immortalwrt/bin/targets/x86/64
 
-      - name: 15.删除最近的发布和版本
+      - name: 13.删除最近的发布和版本
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get the latest release
           latest_release=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
             "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+          
+          if [ "$(echo $latest_release | jq -r '.message')" != "Not Found" ]; then
+            tag_name=$(echo $latest_release | jq -r .tag_name)
+            release_id=$(echo $latest_release | jq -r .id)
+            
+            # Delete the release
+            curl -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/$release_id"
+            
+            # Delete the tag
+            git push --delete origin $tag_name || true
+          fi
 
-          # Extract the tag name and release ID
-          tag_name=$(echo $latest_release | jq -r .tag_name)
-          release_id=$(echo $latest_release | jq -r .id)
-
-          # Delete the release
-          curl -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/$release_id"
-
-          # Delete the tag
-          git push --delete origin $tag_name
-
-      - name: 16.发布固件
+      - name: 14.发布固件
         uses: ncipollo/release-action@v1
         with:
-          tag: "${{ env.FIRMWARE_NAME }}--${{ env.FILE_DATE }}"
+          tag: "${{ env.FIRMWARE_NAME }}--${{ env.FILE_DATE }}--${{ env.REPO_BRANCH }}"
           artifacts: "immortalwrt/bin/targets/x86/64/*"
           body: |
+            ImmortalWRT Version: ${{ env.REPO_BRANCH }}
             IP: 192.168.31.1 | Password: none
