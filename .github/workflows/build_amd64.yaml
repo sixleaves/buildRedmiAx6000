@@ -18,33 +18,17 @@ jobs:
       contents: write
 
     steps:
-      - name: 1.获取最新稳定版本
-        id: get_version
-        run: |
-          # 获取所有标签
-          TAGS=$(curl -s https://api.github.com/repos/immortalwrt/immortalwrt/tags | jq -r '.[].name')
-          # 过滤出稳定版本标签（格式如 v24.10.1）并排序
-          LATEST_STABLE=$(echo "$TAGS" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n1)
-          if [ -z "$LATEST_STABLE" ]; then
-            echo "No stable version found, using default branch"
-            echo "REPO_BRANCH=openwrt-24.10" >> $GITHUB_ENV
-          else
-            # 提取主要版本号（如 24.10）并去除v前缀
-            MAIN_VERSION=$(echo $LATEST_STABLE | sed 's/v\([0-9]\+\.[0-9]\+\).*/\1/')
-            echo "REPO_BRANCH=openwrt-$MAIN_VERSION" >> $GITHUB_ENV
-            echo "Using branch: openwrt-$MAIN_VERSION based on tag $LATEST_STABLE"
-          fi
-
-      - name: 2.下载config配置
+      - name: 1.下载config配置
         uses: actions/checkout@master
 
-      - name: 3.安装依赖
+      - name: 2.安装依赖
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
+          sudo apt update
           sudo apt install build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils
 
-      - name: 5.下载IB
+      - name: 3.下载IB
         working-directory: /workdir
         run: |
           df -hT $PWD
