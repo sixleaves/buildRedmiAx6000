@@ -66,7 +66,7 @@ jobs:
       - name: 7.发布固件
         uses: ncipollo/release-action@v1
         with:
-          tag: "${{ env.FIRMWARE_NAME }--${{ env.REPO_BRANCH }}"
+          tag: "${{ env.FIRMWARE_NAME }}--${{ env.REPO_BRANCH }}"
           artifacts: "${{ env.IB_NAME }}/bin/targets/x86/64/*"
           body: |
             ImmortalWRT Version: ${{ env.REPO_BRANCH }}
