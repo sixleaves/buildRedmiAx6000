@@ -64,12 +64,32 @@ jobs:
         with:
           name: amd64_x86
           path: ${{ env.IB_NAME }}/bin/targets/x86/64
+      - name: 7.设置发布信息
+        run: |
+          echo "RELEASE_DATE=$(date +%Y%m%d-%H%M)" >> $GITHUB_ENV
+          echo "RELEASE_BODY<<EOF" >> $GITHUB_ENV
+          echo "## ImmortalWRT 固件发布" >> $GITHUB_ENV
+          echo "### 构建信息" >> $GITHUB_ENV
+          echo "- 固件版本：${REPO_BRANCH}" >> $GITHUB_ENV
+          echo "- 构建时间：$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+          echo "- 构建分支：${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          echo "### 默认配置" >> $GITHUB_ENV
+          echo "- 默认 IP：192.168.31.1" >> $GITHUB_ENV
+          echo "- 默认密码：无密码" >> $GITHUB_ENV
+          echo "### 注意事项" >> $GITHUB_ENV
+          echo "1. 首次登录请立即设置密码" >> $GITHUB_ENV
+          echo "2. 请及时更新系统和软件包" >> $GITHUB_ENV
+          echo "### 更新日志" >> $GITHUB_ENV
+          echo "- 基于 ImmortalWRT ${REPO_BRANCH} 版本构建" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-      - name: 7.发布固件
+      - name: 8.Release Firmware
         uses: ncipollo/release-action@v1
         with:
-          tag: "${{ env.FIRMWARE_NAME }}-${{ env.MAIN_VERSION }}"
+          tag: "${{ env.FIRMWARE_NAME }}-${{ env.MAIN_VERSION }}-${{ env.RELEASE_DATE }}"
           artifacts: "${{ env.IB_NAME }}/bin/targets/x86/64/*"
-          body: |
-            ImmortalWRT Version: ${{ env.REPO_BRANCH }}
-            IP: 192.168.31.1 | Password: none
+          body: ${{ env.RELEASE_BODY }}
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
