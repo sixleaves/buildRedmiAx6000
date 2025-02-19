@@ -141,26 +141,6 @@ jobs:
         with:
           name: AX6000_RedMi
           path: immortalwrt-mt798x/bin
-
-      # - name: 11.删除最近的发布和版本
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     # Get the latest release
-      #     latest_release=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-      #       "https://api.github.com/repos/${{ github.repository }}/releases/latest")
-
-      #     # Extract the tag name and release ID
-      #     tag_name=$(echo $latest_release | jq -r .tag_name)
-      #     release_id=$(echo $latest_release | jq -r .id)
-
-      #     # Delete the release
-      #     curl -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
-      #       "https://api.github.com/repos/${{ github.repository }}/releases/$release_id"
-
-      #     # Delete the tag
-      #     git push --delete origin $tag_name
-
       - name: 12.发布固件
         uses: ncipollo/release-action@v1
         with:
