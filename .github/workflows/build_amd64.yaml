@@ -7,7 +7,7 @@ on:
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt.git
   CONFIG_FILE: .config_amd64
-  IB_DIR: iB-24.10
+  IB_DIR: IB-24.10
   IB_NAME: immortalwrt-imagebuilder-x86-64.Linux-x86_64
   FIRMWARE_NAME: immortalwrt
   TZ: Asia/Shanghai
