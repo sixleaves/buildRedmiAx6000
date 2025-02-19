@@ -7,7 +7,7 @@ on:
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt.git
   CONFIG_FILE: .config_amd64
-  REPO_NAME: immortalwrt
+  REPO_NAME: ib
   FIRMWARE_NAME: immortalwrt
   TZ: Asia/Shanghai
 
@@ -27,6 +27,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
 
       - name: 3.下载IB
         working-directory: /workdir
