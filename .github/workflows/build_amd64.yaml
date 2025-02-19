@@ -31,6 +31,7 @@ jobs:
           else
             # 提取主要版本号（如 24.10）并去除v前缀
             MAIN_VERSION=$(echo $LATEST_STABLE | sed 's/v\([0-9]\+\.[0-9]\+\).*/\1/')
+            echo "MAIN_VERSION=$MAIN_VERSION" >> $GITHUB_ENV    
             echo "REPO_BRANCH=openwrt-$MAIN_VERSION" >> $GITHUB_ENV
             echo "Using branch: openwrt-$MAIN_VERSION based on tag $LATEST_STABLE"
           fi
@@ -66,7 +67,7 @@ jobs:
       - name: 7.发布固件
         uses: ncipollo/release-action@v1
         with:
-          tag: "${{ env.FIRMWARE_NAME }}-${{ env.REPO_BRANCH }}"
+          tag: "${{ env.FIRMWARE_NAME }}-${{ env.MAIN_VERSION }}"
           artifacts: "${{ env.IB_NAME }}/bin/targets/x86/64/*"
           body: |
             ImmortalWRT Version: ${{ env.REPO_BRANCH }}
