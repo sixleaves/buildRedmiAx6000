@@ -35,7 +35,7 @@ jobs:
         run: |
           df -hT $PWD
           wget https://github.com/sixleaves/buildOP4Six/releases/download/immortalwrt--202502191859--openwrt-24.10/immortalwrt-imagebuilder-x86-64.Linux-x86_64.tar.zst -O immortalwrt-imagebuilder-x86-64.Linux-x86_64.tar.zst
-          tar -I zstd -xvf immortalwrt-imagebuilder-x86-64.Linux-aarch64.tar.zst
+          tar -I zstd -xvf immortalwrt-imagebuilder-x86-64.Linux-x86_64.tar.zst
 
       - name: 5.自定义固件
         working-directory: /workdir
