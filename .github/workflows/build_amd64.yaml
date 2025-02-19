@@ -8,9 +8,7 @@ env:
   REPO_BRANCH: openwrt-24.10
   CONFIG_FILE: .config_amd64
   REPO_NAME: immortalwrt
-  UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: true
-  IS_BUILD_PROXY: true
+  FIRMWARE_NAME: immortalwrt
   TZ: Asia/Shanghai
 
 jobs:
@@ -152,7 +150,7 @@ jobs:
       - name: 16.发布固件
         uses: ncipollo/release-action@v1
         with:
-          tag: "${{ env.DEVICE_NAME }}--${{ env.FILE_DATE }}"
-          artifacts: "immortalwrt/bin/targets/*/*/*"
+          tag: "${{ env.FIRMWARE_NAME }}--${{ env.FILE_DATE }}"
+          artifacts: "immortalwrt/bin/targets/x86/64/*"
           body: |
             IP: 192.168.31.1 | Password: none
