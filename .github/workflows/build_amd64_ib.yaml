@@ -6,7 +6,7 @@ on:
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt.git
-  CONFIG_FILE: .config_amd64
+  CONFIG_FILE: x86-64/.config_amd64
   REPO_NAME: immortalwrt
   FIRMWARE_NAME: IB
   TZ: Asia/Shanghai
