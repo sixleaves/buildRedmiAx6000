@@ -2,6 +2,9 @@
 # 99-custom.sh 就是immortalwrt固件首次启动时运行的脚本 位于固件内的/etc/uci-defaults/99-custom.sh
 # Log file for debugging
 mkdir -p /etc/sing-box/
+chmod 777 /usr/bin/start_singbox.sh
+chmod 777 /usr/bin/stop_singbox.sh
+
 LOGFILE="/tmp/uci-defaults-log.txt"
 echo "Starting 99-custom.sh at $(date)" >> $LOGFILE
 # 设置默认防火墙规则，方便虚拟机首次访问 WebUI
