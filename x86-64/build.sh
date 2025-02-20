@@ -33,6 +33,7 @@ PACKAGES="$PACKAGES luci-i18n-argon-config-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-opkg-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
 PACKAGES="$PACKAGES openssh-sftp-server"
+PACKAGES="$PACKAGES -mtd -kmod-e1000e -kmod-i40e -kmod-igb -kmod-igbvf -kmod-ixgbe -kmod-ixgbevf -kmod-pcnet32 -kmod-tulip -kmod-vmxnet3 -kmod-r8101 -kmod-r8125 -kmod-r8126 -kmod-r8168 -kmod-8139cp -kmod-8139too -kmod-fs-f2fs -kmod-amd-xgbe"
 # 增加几个必备组件 方便用户安装iStore
 PACKAGES="$PACKAGES fdisk"
 PACKAGES="$PACKAGES luci-i18n-samba4-zh-cn"
