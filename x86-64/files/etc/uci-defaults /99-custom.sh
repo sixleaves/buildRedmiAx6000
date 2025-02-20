@@ -59,6 +59,8 @@ fi
 uci delete ttyd.@ttyd[0].interface
 
 # 设置所有网口可连接 SSH
+uci set dropbear.@dropbear[0].PasswordAuth="0"
+uci set dropbear.@dropbear[0].RootPasswordAuth="0"
 uci set dropbear.@dropbear[0].Interface=''
 uci commit
 
