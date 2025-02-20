@@ -107,12 +107,13 @@ jobs:
           echo "📥 Firmware download" >> release.txt
           echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: Publish to release
-        uses: softprops/action-gh-release@v1
-        if: steps.tag.outputs.status == 'success'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release Firmware
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ steps.tag.outputs.release_tag }}
-          body_path: release.txt
-          files: ${{ env.FIRMWARE }}/*
+          tag: "redmi-ax6000-${{ env.FILE_DATE }}"
+          artifacts: "${{ env.FIRMWARE }}/*"
+          body: Redmi Ax6000
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
