@@ -37,7 +37,7 @@ jobs:
           fi
 
       - name: 2.下载config配置
-        uses: actions/checkout@master
+        uses: actions/checkout@main
 
       - name: 3.安装依赖
         env:
