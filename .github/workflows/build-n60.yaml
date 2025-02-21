@@ -115,7 +115,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const pattern = /^IB-/i;  // 匹配以 immortalwrt-2 开头的名称
+            const pattern = /^N99-/i;  // 匹配以 immortalwrt-2 开头的名称
             const keep = 0;
   
             const { data: releases } = await github.rest.repos.listReleases({
