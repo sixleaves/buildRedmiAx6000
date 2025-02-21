@@ -86,10 +86,11 @@ jobs:
 
       - name: 6.加载配置文件
         run: |
-          ls -l $CONFIG_FILE || echo "Config file not found"
-          ls -l $GITHUB_WORKSPACE
-          if [ -e $CONFIG_FILE ]; then
+          ls -l x86-64/$CONFIG_FILE || echo "Config file not found"
+          ls -l x86-64/$CONFIG_FILE
+          if [ -e x86-64/$CONFIG_FILE ]; then
             cp -rf x86-64/$CONFIG_FILE /workdir/$REPO_NAME/
+            ls /workdir/$REPO_NAME/
             mv /workdir/$REPO_NAME/$CONFIG_FILE /workdir/$REPO_NAME/.config
           else
             echo "Config file $CONFIG_FILE not found. Exiting..."
