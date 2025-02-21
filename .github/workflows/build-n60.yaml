@@ -60,7 +60,7 @@ jobs:
         run: |
           cp hanwckf/n99-AX6000/mt7986a-netcore-n60.dts /workdir/$REPO_NAME/
           cd /workdir/$REPO_NAME
-          rm $DTS_PATH/mt7986a-netcore-n60.dts
+          rm /workdir/$REPO_NAME/$DTS_PATH/mt7986a-netcore-n60.dts
           mv mt7986a-netcore-n60.dts $DTS_PATH
 
       - name: 6.加载配置文件
