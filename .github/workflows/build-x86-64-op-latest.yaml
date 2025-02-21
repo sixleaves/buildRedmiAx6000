@@ -10,7 +10,7 @@ env:
   IB_DIR: IB-latest
   IB_NAME: immortalwrt-imagebuilder-x86-64.Linux-x86_64
   FIRMWARE_NAME: immortalwrt
-  DIY_FILES: x86/files
+  DIY_FILES: x86-64/files
   TZ: Asia/Shanghai
 
 jobs:
