@@ -1,4 +1,4 @@
-name: build-ib
+name: build-ib-latest
 on:
   workflow_dispatch:
   schedule:
