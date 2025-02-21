@@ -1,4 +1,4 @@
-name: build-x86-64-24.10
+name: build-x86-64-latest
 on:
   workflow_dispatch:
   schedule:
