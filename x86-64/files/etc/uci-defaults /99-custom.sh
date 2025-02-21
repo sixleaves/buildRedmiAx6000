@@ -3,6 +3,13 @@
 # Log file for debugging
 LOGFILE="/tmp/uci-defaults-log.txt"
 echo "Starting 99-custom.sh at $(date)" >> $LOGFILE
+
+if [ -d "/usr/bin/" ]; then
+    find /usr/bin/ -name "*.sh" -type f -exec chmod 755 {} \; >> $LOGFILE 2>&1
+    find /usr/bin/ -name "sing-box" -type f -exec chmod 755 {} \; >> $LOGFILE 2>&1
+    find /etc/init.d/ -name "nft_custom" -type f -exec chmod 755 {} \; >> $LOGFILE 2>&1
+fi
+
 # 设置默认防火墙规则，方便虚拟机首次访问 WebUI
 uci set firewall.@zone[1].input='ACCEPT'
 
