@@ -7,7 +7,7 @@ env:
   REPO_BRANCH: openwrt-23.05
   CONFIG_FILE: n60_config
   REPO_NAME: immortalwrt-mt798x-23.05
-  DTS_PATH: target/linux/mediatek/files-5.4/arch/arm64/boot/dts
+  DTS_PATH: target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/
   FIRMWARE_NAME: N99
   TZ: Asia/Shanghai
 
