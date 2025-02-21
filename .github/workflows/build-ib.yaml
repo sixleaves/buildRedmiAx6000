@@ -6,7 +6,7 @@ on:
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt.git
-  CONFIG_FILE: x86-64/.config_amd64
+  CONFIG_FILE: .config_amd64
   REPO_NAME: immortalwrt
   FIRMWARE_NAME: IB
   TZ: Asia/Shanghai
@@ -89,7 +89,7 @@ jobs:
           ls -l $CONFIG_FILE || echo "Config file not found"
           ls -l $GITHUB_WORKSPACE
           if [ -e $CONFIG_FILE ]; then
-            cp -rf $CONFIG_FILE /workdir/$REPO_NAME/
+            cp -rf x86-64/$CONFIG_FILE /workdir/$REPO_NAME/
             mv /workdir/$REPO_NAME/$CONFIG_FILE /workdir/$REPO_NAME/.config
           else
             echo "Config file $CONFIG_FILE not found. Exiting..."
