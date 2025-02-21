@@ -64,8 +64,8 @@ jobs:
           tree ${{ env.IB_NAME }}/files || true
           cd ${{ env.IB_NAME }}
           echo -e "$(nproc) thread compile"
-          make image PROFILE="generic" PACKAGES="-kmod-fs-f2fs custom-scripts kmod-nft-tproxy rsync luci-i18n-opkg-zh-cn luci-i18n-argon-config-zh-cn luci-i18n-firewall-zh-cn" FILES="files" ROOTFS_PARTSIZE=1024
-          # make image PROFILE="generic" PACKAGES="custom-scripts -mtd -kmod-e1000e -kmod-i40e -kmod-igb -kmod-igbvf -kmod-ixgbe -kmod-ixgbevf -kmod-pcnet32 -kmod-tulip -kmod-vmxnet3 -kmod-r8101 -kmod-r8125 -kmod-r8126 -kmod-r8168 -kmod-8139cp -kmod-8139too -kmod-fs-f2fs -kmod-amd-xgbe" FILES="files"
+          # make image PROFILE="generic" PACKAGES="-kmod-fs-f2fs custom-scripts kmod-nft-tproxy rsync luci-i18n-opkg-zh-cn luci-i18n-argon-config-zh-cn luci-i18n-firewall-zh-cn" FILES="files" ROOTFS_PARTSIZE=1024
+          make image PROFILE="generic" PACKAGES="custom-scripts kmod-nft-tproxy -mtd -kmod-e1000e -kmod-i40e -kmod-igb -kmod-igbvf -kmod-ixgbe -kmod-ixgbevf -kmod-pcnet32 -kmod-tulip -kmod-vmxnet3 -kmod-r8101 -kmod-r8125 -kmod-r8126 -kmod-r8168 -kmod-8139cp -kmod-8139too -kmod-fs-f2fs -kmod-amd-xgbe" FILES="files" ROOTFS_PARTSIZE=1024
           echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
       - name: 6.上传bin目录
         uses: actions/upload-artifact@master
