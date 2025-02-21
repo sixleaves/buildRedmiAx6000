@@ -12,6 +12,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    permissions:  # 添加权限声明
+      contents: write
 
     steps:
       - name: Checkout Configuration
