@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
 
 env:
-  REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-23.05
-  REPO_BRANCH: openwrt-23.05
+  REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
+  REPO_BRANCH: openwrt-21.02
   CONFIG_FILE: n60_config
-  REPO_NAME: immortalwrt-mt798x-23.05
+  REPO_NAME: immortalwrt-mt798x
   DTS_PATH: target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/
   FIRMWARE_NAME: N99
   TZ: Asia/Shanghai
@@ -143,12 +143,12 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: amd64_x86
-          path: immortalwrt-mt798x-23.05/bin/targets/x86/64/*
+          path: immortalwrt-mt798x/bin/targets/x86/64/*
 
       - name: 12.发布N99
         uses: ncipollo/release-action@v1
         with:
           tag: "${{ env.FIRMWARE_NAME }}-latest"
-          artifacts: "immortalwrt-mt798x-23.05/bin/targets/x86/64/*"
+          artifacts: "immortalwrt-mt798x/bin/targets/x86/64/*"
           body: |
             N99
