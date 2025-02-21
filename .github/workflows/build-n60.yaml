@@ -143,12 +143,12 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: amd64_x86
-          path: immortalwrt-mt798x/bin/targets/x86/64/*
+          path: /workdir/immortalwrt-mt798x/bin/targets/x86/64/*
 
       - name: 12.发布N99
         uses: ncipollo/release-action@v1
         with:
           tag: "${{ env.FIRMWARE_NAME }}-latest"
-          artifacts: "immortalwrt-mt798x/bin/targets/x86/64/*"
+          artifacts: "/workdir/immortalwrt-mt798x/bin/targets/x86/64/*"
           body: |
             N99
