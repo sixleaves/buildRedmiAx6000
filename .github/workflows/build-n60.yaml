@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: write
 
+    steps:
       - name: 1.下载config配置
         uses: actions/checkout@main
 
