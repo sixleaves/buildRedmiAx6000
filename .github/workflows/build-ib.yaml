@@ -89,8 +89,8 @@ jobs:
           ls -l $CONFIG_FILE || echo "Config file not found"
           ls -l $GITHUB_WORKSPACE
           if [ -e $CONFIG_FILE ]; then
-            cp -rf $CONFIG_FILE $GITHUB_WORKSPACE/$REPO_NAME/
-            mv $GITHUB_WORKSPACE/$REPO_NAME/$CONFIG_FILE $GITHUB_WORKSPACE/$REPO_NAME/.config
+            cp -rf $CONFIG_FILE /workdir/$REPO_NAME/
+            mv /workdir/$REPO_NAME/$CONFIG_FILE /workdir/$REPO_NAME/.config
           else
             echo "Config file $CONFIG_FILE not found. Exiting..."
             exit 1
