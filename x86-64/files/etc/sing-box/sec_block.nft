@@ -47,7 +47,7 @@ table inet security {
 
     set whitelist_mac {
         type ether_addr
-        elements = { b0:f1:d8:30:8a:22,0A:26:F0:BF:1A:33}
+        elements = { }
     }
 
     set whitelist_ip {
