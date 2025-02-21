@@ -12,7 +12,6 @@
     model = "Netcore N60 Pro";
     compatible = "netcore,n60-pro", "mediatek,mt7986a";
 
-    /* USB3.0电源控制 */
     usb3_vbus: regulator-usb3 {
         compatible = "regulator-fixed";
         regulator-name = "usb3_vbus";
@@ -20,7 +19,7 @@
         regulator-max-microvolt = <5000000>;
         gpio = <&pio 15 GPIO_ACTIVE_HIGH>;
         enable-active-high;
-        startup-delay-us = <50000>;  // 50ms上电延迟
+        startup-delay-us = <50000>;
     };
 
     chosen {
