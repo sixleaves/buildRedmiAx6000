@@ -105,7 +105,6 @@ table inet security {
             6000-6063, # X11
             8086,    # InfluxDB
             9200,    # Elasticsearch
-            10000-65535
         }
     }
 
