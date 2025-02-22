@@ -41,7 +41,7 @@ jobs:
           echo "验证配置文件"
           tree ${{ env.IB_NAME }}/files || true
           cd ${{ env.IB_NAME }}
-          make image PROFILE="netcore_n60" FILES="files" PACKAGES="htop curl rsync luci-theme-argon iptables-mod-tproxy -zoneinfo-core -uboot-envtools -zoneinfo-asia"
+          make image PROFILE="netcore_n60" FILES="files" PACKAGES="htop curl rsync kmod-conninfra kmod-mt_wifi kmod-warp wifi-dats switch regs mtwifi-cfg mtkhqos_util mtk-smp mii_mgr dataconf-lua datconf luci-app-turboacc-mtk luci-app-mtwifi-cfg luci-app-eqos-mtk luci-theme-argon iptables-mod-tproxy kmod-inet-diag -zoneinfo-core -uboot-envtools -zoneinfo-asia"
           echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
       - name: 7.删除多余版本
