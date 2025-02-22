@@ -67,17 +67,20 @@ fi
 
 # 清理旧规则
 clean_rules() {
+    echo "$(timestamp) 清理旧规则..."
+
+    # IPv4清理
     iptables -t mangle -D PREROUTING -j TPROXY_RULE 2>/dev/null
     iptables -t mangle -F TPROXY_RULE 2>/dev/null
     iptables -t mangle -X TPROXY_RULE 2>/dev/null
-
-    ip6tables -t mangle -D PREROUTING -j TPROXY_RULE 2>/dev/null
-    ip6tables -t mangle -F TPROXY_RULE 2>/dev/null
-    ip6tables -t mangle -X TPROXY_RULE 2>/dev/null
-
     iptables -t mangle -D OUTPUT -j OUTPUT_RULE 2>/dev/null
     iptables -t mangle -F OUTPUT_RULE 2>/dev/null
     iptables -t mangle -X OUTPUT_RULE 2>/dev/null
+
+    # IPv6清理
+    ip6tables -t mangle -D PREROUTING -j TPROXY_RULE 2>/dev/null
+    ip6tables -t mangle -F TPROXY_RULE 2>/dev/null
+    ip6tables -t mangle -X TPROXY_RULE 2>/dev/null
 }
 
 check_command() {
@@ -98,7 +101,7 @@ check_network() {
 check_port() {
     local port=$1
     if netstat -tuln | grep -q ":$port "; then
-        echo "端口 $port 已被占用.强制重启"
+        echo "$(timestamp) 端口 $port 已被占用.强制重启"
         pgrep "sing-box" | xargs kill -9
     fi
 }
@@ -127,41 +130,57 @@ check_port "$TPROXY_PORT"
 clean_rules
 
 # 创建自定义链
-iptables -t mangle -N TPROXY_RULE
-iptables -t mangle -N OUTPUT_RULE
-ip6tables -t mangle -N TPROXY_RULE
+echo "$(timestamp) 初始化iptables链..."
+iptables -t mangle -N TPROXY_RULE 2>/dev/null
+iptables -t mangle -N OUTPUT_RULE 2>/dev/null
+ip6tables -t mangle -N TPROXY_RULE 2>/dev/null
 
 # IPv4 规则配置
+echo "$(timestamp) 配置IPv4规则链..."
 iptables -t mangle -A PREROUTING -j TPROXY_RULE
 iptables -t mangle -A OUTPUT -j OUTPUT_RULE
 
 # IPv6 规则配置
+echo "$(timestamp) 配置IPv6规则链..."
 ip6tables -t mangle -A PREROUTING -j TPROXY_RULE
 
 # 公共规则函数
 add_tproxy_rules() {
     local ipt=$1
-    # 放行 DHCP/DNS
-    $ipt -t mangle -A TPROXY_RULE -p udp --dport 67:68 -j RETURN
+    echo "$(timestamp) 应用$ipt规则..."
+
+    # 放行 DHCP/DNS（区分IPv4/IPv6）
+    if [ "$ipt" = "iptables" ]; then
+        $ipt -t mangle -A TPROXY_RULE -p udp --dport 67:68 -j RETURN
+    elif [ "$ipt" = "ip6tables" ]; then
+        $ipt -t mangle -A TPROXY_RULE -p udp --dport 546 -j RETURN  # DHCPv6端口
+    fi
     $ipt -t mangle -A TPROXY_RULE -p udp --dport 53 -j TPROXY --on-port $TPROXY_PORT --tproxy-mark $PROXY_FWMARK
 
-    # 放行本地网络
-    $ipt -t mangle -A TPROXY_RULE -d 0.0.0.0/8 -j RETURN
-    $ipt -t mangle -A TPROXY_RULE -d 127.0.0.0/8 -j RETURN
-    $ipt -t mangle -A TPROXY_RULE -d 10.0.0.0/8 -j RETURN
-    $ipt -t mangle -A TPROXY_RULE -d 172.16.0.0/12 -j RETURN
-    $ipt -t mangle -A TPROXY_RULE -d 192.168.0.0/16 -j RETURN
-    $ipt -t mangle -A TPROXY_RULE -d 169.254.0.0/16 -j RETURN
+    # 放行本地网络（区分IPv4/IPv6）
+    if [ "$ipt" = "iptables" ]; then
+        $ipt -t mangle -A TPROXY_RULE -d 0.0.0.0/8 -j RETURN
+        $ipt -t mangle -A TPROXY_RULE -d 127.0.0.0/8 -j RETURN
+        $ipt -t mangle -A TPROXY_RULE -d 10.0.0.0/8 -j RETURN
+        $ipt -t mangle -A TPROXY_RULE -d 172.16.0.0/12 -j RETURN
+        $ipt -t mangle -A TPROXY_RULE -d 192.168.0.0/16 -j RETURN
+        $ipt -t mangle -A TPROXY_RULE -d 169.254.0.0/16 -j RETURN
+    elif [ "$ipt" = "ip6tables" ]; then
+        $ipt -t mangle -A TPROXY_RULE -d ::1/128 -j RETURN          # IPv6本地回环
+        $ipt -t mangle -A TPROXY_RULE -d fc00::/7 -j RETURN         # 唯一本地地址
+        $ipt -t mangle -A TPROXY_RULE -d fe80::/10 -j RETURN        # 链路本地地址（含EUI64）
+    fi
 
-    # DNAT 流量放行
+    # DNAT 流量放行（公共规则）
     $ipt -t mangle -A TPROXY_RULE -m conntrack --ctstate DNAT -j RETURN
 
-    # 主 TPROXY 规则
+    # 主 TPROXY 规则（公共规则）
     $ipt -t mangle -A TPROXY_RULE -p tcp -j TPROXY --on-port $TPROXY_PORT --tproxy-mark $PROXY_FWMARK
     $ipt -t mangle -A TPROXY_RULE -p udp -j TPROXY --on-port $TPROXY_PORT --tproxy-mark $PROXY_FWMARK
 }
 
 # 配置 OUTPUT 链
+echo "$(timestamp) 配置OUTPUT链..."
 iptables -t mangle -A OUTPUT_RULE -m mark --mark $PROXY_FWMARK -j RETURN
 iptables -t mangle -A OUTPUT_RULE -p udp --dport 53 -j MARK --set-mark $PROXY_FWMARK
 iptables -t mangle -A OUTPUT_RULE -d 0.0.0.0/8 -j RETURN
@@ -173,21 +192,25 @@ iptables -t mangle -A OUTPUT_RULE -d 169.254.0.0/16 -j RETURN
 iptables -t mangle -A OUTPUT_RULE -p tcp -j MARK --set-mark $PROXY_FWMARK
 iptables -t mangle -A OUTPUT_RULE -p udp -j MARK --set-mark $PROXY_FWMARK
 
-# 应用规则
+# 应用规则（关键修复点）
+echo "$(timestamp) 应用IPv4代理规则..."
 add_tproxy_rules iptables
+
+echo "$(timestamp) 应用IPv6代理规则..."
 add_tproxy_rules ip6tables
 
 # 路由策略配置
-ip route flush table $PROXY_ROUTE_TABLE
+echo "$(timestamp) 配置IPv4路由..."
+ip route flush table $PROXY_ROUTE_TABLE 2>/dev/null
 ip rule del fwmark $PROXY_FWMARK table $PROXY_ROUTE_TABLE 2>/dev/null
-ip rule add fwmark $PROXY_FWMARK table $PROXY_ROUTE_TABLE
-ip route add local default dev lo table $PROXY_ROUTE_TABLE
+ip rule add fwmark $PROXY_FWMARK table $PROXY_ROUTE_TABLE 2>/dev/null
+ip route add local default dev lo table $PROXY_ROUTE_TABLE 2>/dev/null
 
-# IPv6 路由策略
-ip -6 route flush table $PROXY_ROUTE_TABLE
+echo "$(timestamp) 配置IPv6路由..."
+ip -6 route flush table $PROXY_ROUTE_TABLE 2>/dev/null
 ip -6 rule del fwmark $PROXY_FWMARK table $PROXY_ROUTE_TABLE 2>/dev/null
-ip -6 rule add fwmark $PROXY_FWMARK table $PROXY_ROUTE_TABLE
-ip -6 route add local default dev lo table $PROXY_ROUTE_TABLE
+ip -6 rule add fwmark $PROXY_FWMARK table $PROXY_ROUTE_TABLE 2>/dev/null
+ip -6 route add local default dev lo table $PROXY_ROUTE_TABLE 2>/dev/null
 
 # 启动服务
 echo "$(timestamp) 启动 sing-box 服务..."
