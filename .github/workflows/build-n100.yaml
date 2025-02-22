@@ -5,7 +5,7 @@ on:
 env:
   REPO_URL: https://github.com/sixleaves/buildOP4Six/releases/download
   REPO_IB: N99-latest
-  IB_NANE: immortalwrt-imagebuilder-mediatek-mt7986.Linux-x86_64
+  IB_NAME: immortalwrt-imagebuilder-mediatek-mt7986.Linux-x86_64
   DIY_FILES: arm64/21.02/files
   FIRMWARE_NAME: N100
   TZ: Asia/Shanghai
@@ -32,7 +32,7 @@ jobs:
         run: |
           df -hT $PWD
           echo "Using IB: $REPO_IB"
-          wget $REPO_URL/$REPO_IB/$IB_NANE.tar.xz -O ${{ env.IB_NAME }}.tar.xz
+          wget $REPO_URL/$REPO_IB/${{ env.IB_NAME }}.tar.xz -O ${{ env.IB_NAME }}.tar.xz
           tar -xJvf ${{ env.IB_NAME }}.tar.xz
 
       - name: 6.开始构建
