@@ -27,12 +27,8 @@ jobs:
           sudo apt update
           sudo apt install build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3
           sudo apt install -y xz-utils
-          echo "创建/workdir文件夹"
-          sudo mkdir -p /workdir
-          sudo chown $USER:$GROUPS /workdir
 
       - name: 5.初始化仓库
-        working-directory: /workdir
         run: |
           df -hT $PWD
           echo "Using IB: $REPO_IB"
@@ -48,7 +44,7 @@ jobs:
           make image PROFILE="netcore_n60" FILES="files" PACKAGES="htop curl rsync luci-theme-argon iptables-mod-tproxy"
           echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
-      - name: 7.Clean IB Releases
+      - name: 7.删除多余版本
         uses: actions/github-script@v6
         with:
           script: |
@@ -80,12 +76,12 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: arm64-n100-bin
-          path: /workdir/${{ env.IB_NAME }}/bin/targets/*/*/*
+          path: ${{ env.IB_NAME }}/bin/targets/*/*/*
 
       - name: 9.发布N100
         uses: ncipollo/release-action@v1
         with:
           tag: "${{ env.FIRMWARE_NAME }}-${{ env.FILE_DATE }}"
-          artifacts: "/workdir/${{ env.IB_NAME }}/bin/targets/*/*/*"
+          artifacts: "${{ env.IB_NAME }}/bin/targets/*/*/*"
           body: |
             N100
