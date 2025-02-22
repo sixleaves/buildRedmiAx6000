@@ -13,12 +13,39 @@ CONFIG_FILE="/etc/sing-box/config.json"
 CONFIG_BACKUP="/etc/sing-box/config.json.backup"
 LOG_FILE="${LOG_FILE:-/var/log/sing-box-config.log}"
 
-# 加载内核模块
-modprobe xt_TPROXY
-modprobe xt_MARK
+# 创建日志目录
+mkdir -p "$(dirname "$LOG_FILE")" 2>/dev/null
+touch "$LOG_FILE" || error_exit "无法创建日志文件"
 
-# 重定向输出到日志文件
-exec > >(tee -a "$LOG_FILE") 2>&1
+# 使用 FIFO 实现实时双写
+setup_logging() {
+    # 创建命名管道
+    log_pipe="/tmp/singbox_log_pipe"
+    [ -p "$log_pipe" ] && rm -f "$log_pipe"
+    mkfifo "$log_pipe" || error_exit "无法创建日志管道"
+
+    # 启动后台写入进程
+    tee -a "$LOG_FILE" < "$log_pipe" &
+    tee_pid=$!
+
+    # 设置退出清理
+    trap 'cleanup_logging' EXIT
+
+    # 重定向输出到管道
+    exec 3>&1  # 备份原始 stdout
+    exec > "$log_pipe" 2>&1
+}
+
+cleanup_logging() {
+    # 恢复原始输出
+    exec 1>&3 2>&3
+    # 清理后台进程和管道
+    [ -n "$tee_pid" ] && kill $tee_pid 2>/dev/null
+    [ -p "$log_pipe" ] && rm -f "$log_pipe"
+}
+
+# 初始化日志系统
+setup_logging
 
 timestamp() {
     date +"%Y-%m-%d %H:%M:%S"
@@ -172,3 +199,5 @@ if pgrep -x "sing-box" >/dev/null; then
 else
     error_exit "sing-box 启动失败，请检查配置"
 fi
+
+cleanup_logging

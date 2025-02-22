@@ -1,8 +1,40 @@
 #!/bin/sh
 # 默认日志文件路径
 LOG_FILE="${LOG_FILE:-/var/log/sing-box-config-stop.log}"
-# 重定向输出到日志文件
-exec > >(tee -a "$LOG_FILE") 2>&1
+
+# 创建日志目录
+mkdir -p "$(dirname "$LOG_FILE")" 2>/dev/null
+touch "$LOG_FILE" || error_exit "无法创建日志文件"
+
+# 使用 FIFO 实现实时双写
+setup_logging() {
+    # 创建命名管道
+    log_pipe="/tmp/singbox_log_pipe"
+    [ -p "$log_pipe" ] && rm -f "$log_pipe"
+    mkfifo "$log_pipe" || error_exit "无法创建日志管道"
+
+    # 启动后台写入进程
+    tee -a "$LOG_FILE" < "$log_pipe" &
+    tee_pid=$!
+
+    # 设置退出清理
+    trap 'cleanup_logging' EXIT
+
+    # 重定向输出到管道
+    exec 3>&1  # 备份原始 stdout
+    exec > "$log_pipe" 2>&1
+}
+
+cleanup_logging() {
+    # 恢复原始输出
+    exec 1>&3 2>&3
+    # 清理后台进程和管道
+    [ -n "$tee_pid" ] && kill $tee_pid 2>/dev/null
+    [ -p "$log_pipe" ] && rm -f "$log_pipe"
+}
+
+setup_logging
+
 # 获取当前时间
 timestamp() {
     date +"%Y-%m-%d %H:%M:%S"
@@ -68,3 +100,4 @@ ip -6 route flush table 100 2>/dev/null && echo "$(timestamp) 已清理 IPv6 路
 rm -f /etc/sing-box/cache.db && echo "$(timestamp) 已清理缓存文件"
 
 echo "$(timestamp) 停止sing-box并清理完毕"
+cleanup_logging
