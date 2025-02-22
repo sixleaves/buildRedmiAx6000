@@ -59,7 +59,6 @@ if [ "$(id -u)" != "0" ]; then
 fi
 # 检查必要命令是否安装
 check_command "sing-box"
-check_command "nft"
 check_command "ip"
 
 # 停止 sing-box 服务（包括沙盒实例）
