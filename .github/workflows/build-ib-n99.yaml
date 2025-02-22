@@ -1,4 +1,4 @@
-name: build-n60
+name: build-ib-n99
 on:
   workflow_dispatch:
 
