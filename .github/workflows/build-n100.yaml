@@ -4,7 +4,7 @@ on:
 
 env:
   REPO_URL: https://github.com/sixleaves/buildOP4Six/releases/download
-  REPO_IB: n99-latest
+  REPO_IB: N99-latest
   IB_NANE: immortalwrt-imagebuilder-mediatek-mt7986.Linux-x86_64
   DIY_FILES: arm64/21.02/files
   FIRMWARE_NAME: N100
@@ -53,7 +53,7 @@ jobs:
         with:
           script: |
             const pattern = /^N100-/i;  // 匹配以 immortalwrt-2 开头的名称
-            const keep = 0;
+            const keep = 1;
   
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
