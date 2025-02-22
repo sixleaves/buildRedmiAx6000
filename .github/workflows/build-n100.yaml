@@ -1,0 +1,94 @@
+name: build-n100
+on:
+  workflow_dispatch:
+
+env:
+  REPO_URL: https://github.com/sixleaves/buildOP4Six/releases/download
+  REPO_IB: N99-latest
+  IB_NAME: immortalwrt-imagebuilder-mediatek-mt7986.Linux-x86_64
+  DIY_FILES: arm64/21.02/files
+  FIRMWARE_NAME: N100
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: 1.下载config配置
+        uses: actions/checkout@main
+
+      - name: 2.安装依赖
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt update
+          sudo apt install build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3
+          sudo apt install -y xz-utils
+
+      - name: 5.初始化仓库
+        run: |
+          df -hT $PWD
+          echo "Using IB: $REPO_IB"
+          wget $REPO_URL/$REPO_IB/${{ env.IB_NAME }}.tar.xz -O ${{ env.IB_NAME }}.tar.xz
+          tar -xJvf ${{ env.IB_NAME }}.tar.xz
+
+      - name: 6.开始构建
+        run: |
+          mv ${{ env.DIY_FILES }} ${{ env.IB_NAME }}/
+          echo "验证配置文件"
+          tree ${{ env.IB_NAME }}/files || true
+          cd ${{ env.IB_NAME }}
+          make image PROFILE="netcore_n60" FILES="files" PACKAGES="kmod-nls-base kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-fs-vfat kmod-fs-ext4 \
+          kmod-fs-exfat kmod-fs-ntfs3 blockd kmod-crypto-user libatomic libstdcpp logd mtd resolveip uci kmod-nft-core kmod-nft-fib kmod-nft-nat kmod-nft-offload \
+          zram-swap wireless-tools procd-ujail procd mtd dnsmasq-full ca-certificates kmod-crypto-cbc kmod-crypto-ccm kmod-crypto-cmac kmod-crypto-des kmod-crypto-gcm kmod-crypto-sha512 \
+          kmod-crypto-md5 kmod-crypto-md4 kmod-cryptodev kmod-ata-core kmod-leds-gpio kmod-leds-ws2812b kmod-lib-crc32c kmod-ebtables-ipv4 kmod-ebtables-ipv6 kmod-ipt-offload \
+          kmod-ipt-raw6 kmod-nf-nathelper kmod-nf-nathelper-extrakmod-conninfra kmod-mt_wifi kmod-warp wifi-dats switch regs mtwifi-cfg mtkhqos_util mtk-smp mii_mgr \
+          luci-app-turboacc-mtk luci-app-mtwifi-cfg luci-app-eqos-mtk luci-theme-argon iptables-mod-tproxy kmod-inet-diag \
+          luci-app-ttyd luci-app-diskman luci-app-hd-idle luci-app-samba4 iperf3 tcpping htop curl rsync \
+          -zoneinfo-core -uboot-envtools -zoneinfo-asia"
+          echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+      - name: 7.删除多余版本
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const pattern = /^N100-/i;  // 匹配以 immortalwrt-2 开头的名称
+            const keep = 1;
+  
+            const { data: releases } = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+  
+            const targets = releases
+              .filter(release => pattern.test(release.name))
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+              .slice(keep);
+  
+            for (const release of targets) {
+              await github.rest.repos.deleteRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.id,
+              });
+              console.log(`Deleted IB release: ${release.tag_name}`);
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 8.上传bin目录
+        uses: actions/upload-artifact@master
+        with:
+          name: arm64-n100-bin
+          path: ${{ env.IB_NAME }}/bin/targets/*/*/*
+
+      - name: 9.发布N100
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "${{ env.FIRMWARE_NAME }}-${{ env.FILE_DATE }}"
+          artifacts: "${{ env.IB_NAME }}/bin/targets/*/*/*"
+          body: |
+            N100
