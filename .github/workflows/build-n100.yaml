@@ -47,7 +47,7 @@ jobs:
           kmod-crypto-md5 kmod-crypto-md4 kmod-cryptodev kmod-ata-core kmod-leds-gpio kmod-leds-ws2812b kmod-lib-crc32c kmod-ebtables-ipv4 kmod-ebtables-ipv6 kmod-ipt-offload \
           kmod-ipt-raw6 kmod-nf-nathelper kmod-nf-nathelper-extra kmod-conninfra kmod-mt_wifi kmod-warp wifi-dats switch regs mtwifi-cfg mtkhqos_util mtk-smp mii_mgr \
           luci-app-mtwifi-cfg luci-app-eqos-mtk luci-theme-argon iptables-mod-tproxy kmod-inet-diag \
-          luci-app-ttyd luci-app-diskman luci-app-hd-idle luci-app-samba4 luci-app-unblockneteasemusic iperf3 tcping tcpping htop curl rsync \
+          luci-app-ttyd luci-app-diskman luci-app-hd-idle iperf3 tcping tcpping htop curl rsync \
           -zoneinfo-core -uboot-envtools -zoneinfo-asia"
           echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
