@@ -46,10 +46,12 @@ jobs:
           kmod-nft-core kmod-nft-fib kmod-nft-nat kmod-nft-offload iptables-mod-tproxy \
           kmod-crypto-cbc kmod-crypto-ccm kmod-crypto-cmac kmod-crypto-des kmod-crypto-gcm kmod-crypto-sha512 kmod-crypto-md5 kmod-crypto-md4 kmod-cryptodev \
           kmod-ata-core kmod-leds-gpio kmod-leds-ws2812b kmod-lib-crc32c kmod-ebtables-ipv4 kmod-ebtables-ipv6 kmod-ipt-offload \
-          kmod-ipt-ipset kmod-ipt-raw6 kmod-nf-nathelper kmod-nf-nathelper-extra kmod-conninfra kmod-mt_wifi kmod-warp wifi-dats switch regs mtwifi-cfg mtkhqos_util mtk-smp mii_mgr kmod-inet-diag \
-          libatomic libstdcpp logd resolveip uci procd mtd zram-swap wireless-tools dnsmasq-full ca-certificates \
-          luci-app-mtwifi-cfg luci-app-eqos-mtk luci-theme-argon luci-app-turboacc-mtk \
-          libopenssl openssl-util tcpdump iperf3 htop curl rsync \
+          kmod-ipt-ipset kmod-ipt-raw6 kmod-inet-diag dnsmasq-full mtd procd uci logd resolveip libatomic libstdcpp \
+          kmod-nf-nathelper kmod-nf-nathelper-extra kmod-conninfra \
+          kmod-mt_wifi kmod-warp wifi-dats switch regs mtwifi-cfg mtkhqos_util mtk-smp mii_mgr wireless-tools luci-app-mtwifi-cfg luci-app-eqos-mtk \
+          luci-theme-argon luci-app-turboacc-mtk \
+          ca-certificates libopenssl openssl-util \
+          tcpdump iperf3 htop curl rsync zram-swap \
           ipset iw \
           -zoneinfo-core -uboot-envtools -zoneinfo-asia"
           echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
