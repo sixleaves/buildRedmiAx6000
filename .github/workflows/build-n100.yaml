@@ -51,7 +51,7 @@ jobs:
           kmod-mt_wifi kmod-warp wifi-dats switch regs mtwifi-cfg mtkhqos_util mtk-smp mii_mgr wireless-tools luci-app-mtwifi-cfg luci-app-eqos-mtk \
           luci-theme-argon luci-app-turboacc-mtk \
           ca-certificates libopenssl openssl-util \
-          tcpdump iperf3 htop curl rsync zram-swap \
+          tcpdump htop curl rsync zram-swap \
           ipset iw \
           -zoneinfo-core -uboot-envtools -zoneinfo-asia"
           echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
