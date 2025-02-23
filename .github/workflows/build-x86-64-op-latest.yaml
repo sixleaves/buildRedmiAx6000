@@ -1,0 +1,103 @@
+name: build-x86-64-op-latest
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 16 * * *'
+
+env:
+  REPO_URL: https://github.com/immortalwrt/immortalwrt.git
+  CONFIG_FILE: x86-64/.config_amd64
+  IB_DIR: IB-latest
+  IB_NAME: immortalwrt-imagebuilder-x86-64.Linux-x86_64
+  FIRMWARE_NAME: immortalwrt
+  DIY_FILES: x86-64/files
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 下载配置
+        uses: actions/checkout@main
+
+      - name: 获取最新稳定版本号
+        id: get_version
+        run: |
+          # 获取所有标签
+          TAGS=$(curl -s https://api.github.com/repos/immortalwrt/immortalwrt/tags | jq -r '.[].name')
+          # 过滤出稳定版本标签（格式如 v24.10.1）并排序
+          LATEST_STABLE=$(echo "$TAGS" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -rV | head -n1)
+          if [ -z "$LATEST_STABLE" ]; then
+            echo "No stable version found, using default branch"
+            echo "REPO_BRANCH=openwrt-24.10" >> $GITHUB_ENV
+          else
+            # 提取主要版本号（如 24.10）并去除v前缀
+            MAIN_VERSION=$(echo $LATEST_STABLE | sed 's/v\([0-9]\+\.[0-9]\+\).*/\1/')
+            echo "MAIN_VERSION=$MAIN_VERSION" >> $GITHUB_ENV    
+            echo "REPO_BRANCH=openwrt-$MAIN_VERSION" >> $GITHUB_ENV
+            echo "Using branch: openwrt-$MAIN_VERSION based on tag $LATEST_STABLE"
+          fi
+
+      - name: 1.下载config配置
+        uses: actions/checkout@main
+
+      - name: 2.安装依赖
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt update
+          sudo apt install build-essential libncurses-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3
+
+      - name: 3.下载IB
+        run: |
+          df -hT $PWD
+          wget https://github.com/sixleaves/buildOP4Six/releases/download/${{ env.IB_DIR }}/${{ env.IB_NAME }}.tar.zst -O ${{ env.IB_NAME }}.tar.zst
+          tar -I zstd -xvf ${{ env.IB_NAME }}.tar.zst
+
+      - name: 5.构建固件
+        run: |
+          mv ${{ env.DIY_FILES }} ${{ env.IB_NAME }}/
+          echo "验证配置文件"
+          tree ${{ env.IB_NAME }}/files || true
+          cd ${{ env.IB_NAME }}
+          echo -e "$(nproc) thread compile"
+          make image PROFILE="generic" PACKAGES="custom-scripts luci-theme-argon kmod-nft-tproxy kmod-sched-core kmod-sched-cake kmod-crypto-cbc kmod-crypto-ctr kmod-ata-ahci kmod-hwmon-core kmod-i2c-core rsync curl htop -kmod-ixgbevf kmod-e1000e kmod-i40e kmod-igb kmod-igbvf kmod-ixgbe kmod-ixgbevf kmod-pcnet32 kmod-tulip kmod-vmxnet3" FILES="files" ROOTFS_PARTSIZE=1024
+          # make image PROFILE="generic" PACKAGES="custom-scripts kmod-nft-tproxy -mtd -kmod-e1000e -kmod-i40e -kmod-igb -kmod-igbvf -kmod-ixgbe -kmod-ixgbevf -kmod-pcnet32 -kmod-tulip -kmod-vmxnet3 -kmod-r8101 -kmod-r8125 -kmod-r8126 -kmod-r8168 -kmod-8139cp -kmod-8139too -kmod-fs-f2fs -kmod-amd-xgbe" FILES="files" ROOTFS_PARTSIZE=1024
+          echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+      - name: 6.上传bin目录
+        uses: actions/upload-artifact@master
+        with:
+          name: amd64_x86
+          path: ${{ env.IB_NAME }}/bin/targets/x86/64
+      - name: 7.设置发布信息
+        run: |
+          echo "RELEASE_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+          echo "RELEASE_BODY<<EOF" >> $GITHUB_ENV
+          echo "## ImmortalWRT 固件发布" >> $GITHUB_ENV
+          echo "### 构建信息" >> $GITHUB_ENV
+          echo "- 固件版本：${REPO_BRANCH}" >> $GITHUB_ENV
+          echo "- 构建时间：$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+          echo "- 构建分支：${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          echo "### 默认配置" >> $GITHUB_ENV
+          echo "- 默认 IP：192.168.31.1" >> $GITHUB_ENV
+          echo "- 默认密码：无密码" >> $GITHUB_ENV
+          echo "### 注意事项" >> $GITHUB_ENV
+          echo "1. 首次登录请立即设置密码" >> $GITHUB_ENV
+          echo "2. 请及时更新系统和软件包" >> $GITHUB_ENV
+          echo "### 更新日志" >> $GITHUB_ENV
+          echo "- 基于 ImmortalWRT ${REPO_BRANCH} 版本构建" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: 8.Release Firmware
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "${{ env.FIRMWARE_NAME }}-${{ env.MAIN_VERSION }}-${{ env.RELEASE_DATE }}"
+          artifacts: "${{ env.IB_NAME }}/bin/targets/x86/64/*"
+          body: ${{ env.RELEASE_BODY }}
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
