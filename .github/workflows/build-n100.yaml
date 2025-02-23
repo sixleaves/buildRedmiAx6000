@@ -8,7 +8,9 @@ env:
   IB_NAME: immortalwrt-imagebuilder-mediatek-mt7986.Linux-x86_64
   DIY_FILES: arm64/21.02/files
   FIRMWARE_NAME: N100
+  ARCH: arm64
   TZ: Asia/Shanghai
+
 
 jobs:
   build:
@@ -35,7 +37,36 @@ jobs:
           wget $REPO_URL/$REPO_IB/${{ env.IB_NAME }}.tar.xz -O ${{ env.IB_NAME }}.tar.xz
           tar -xJvf ${{ env.IB_NAME }}.tar.xz
 
-      - name: 6.开始构建
+      - name: 6.下载singbox最新版本
+        run: |
+          # 获取 sing-box 最新稳定版本的下载URL（通过重定向）
+          REDIRECT_URL=$(curl -s -I -L -o /dev/null -w '%{url_effective}' "https://github.com/SagerNet/sing-box/releases/latest")
+          LATEST_VERSION=$(echo "$REDIRECT_URL" | grep -o '[^/]*$' | sed 's/^v//')
+          if [ -z "$LATEST_VERSION" ]; then
+            echo "错误: 无法获取 sing-box 最新版本号"
+          fi
+          echo "检测到 sing-box 最新版本: $LATEST_VERSION"
+          # 根据架构选择下载文件
+          DOWNLOAD_FILE="sing-box-${LATEST_VERSION}-linux-${ARCH}.tar.gz"
+          DOWNLOAD_URL="https://github.com/SagerNet/sing-box/releases/download/v${LATEST_VERSION}/${DOWNLOAD_FILE}"
+          echo "正在下载 $DOWNLOAD_FILE ..."
+          wget -q "$DOWNLOAD_URL"
+          if [ $? -ne 0 ]; then
+            echo "错误: 下载 $DOWNLOAD_FILE 失败"
+            exit 1
+          fi
+          echo "正在解压 $DOWNLOAD_FILE ..."
+          tar -xzf "$DOWNLOAD_FILE" -C sb
+          echo "正在复制 sing-box 到 $SCRIPTS_PATH ..."
+          cp sb/sing-box-*/sing-box ${{ env.DIY_FILES }}/usr/bin/
+          if [ $? -ne 0 ]; then
+            echo "错误: 复制 sing-box 到 $SCRIPTS_PATH 失败"
+          fi
+          # 设置可执行权限
+          chmod +x ${{ env.DIY_FILES }}/usr/bin/sing-box
+          echo "操作完成，sing-box 已成功复制到 ${{ env.DIY_FILES }}/usr/bin/sing-box"
+
+      - name: 7.开始构建
         run: |
           mv ${{ env.DIY_FILES }} ${{ env.IB_NAME }}/
           echo "验证配置文件"
@@ -56,7 +87,7 @@ jobs:
           -zoneinfo-core -uboot-envtools -zoneinfo-asia"
           echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
-      - name: 7.删除多余版本
+      - name: 8.删除多余版本
         uses: actions/github-script@v6
         with:
           script: |
@@ -84,13 +115,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 8.上传bin目录
+      - name: 9.上传bin目录
         uses: actions/upload-artifact@master
         with:
           name: arm64-n100-bin
           path: ${{ env.IB_NAME }}/bin/targets/*/*/*
 
-      - name: 9.发布N100
+      - name: 10.发布N100
         uses: ncipollo/release-action@v1
         with:
           tag: "${{ env.FIRMWARE_NAME }}-${{ env.FILE_DATE }}"
