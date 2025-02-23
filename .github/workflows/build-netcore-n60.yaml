@@ -1,4 +1,4 @@
-name: build-n100
+name: build-netcore-n60
 on:
   workflow_dispatch:
 
@@ -93,7 +93,7 @@ jobs:
         with:
           script: |
             const pattern = /^N100-/i;  // 匹配以 immortalwrt-2 开头的名称
-            const keep = 1;
+            const keep = 0;
   
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
