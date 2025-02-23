@@ -55,6 +55,7 @@ jobs:
             echo "错误: 下载 $DOWNLOAD_FILE 失败"
             exit 1
           fi
+          mkdir -p sb
           echo "正在解压 $DOWNLOAD_FILE ..."
           tar -xzf "$DOWNLOAD_FILE" -C sb
           echo "正在复制 sing-box 到 $SCRIPTS_PATH ..."
