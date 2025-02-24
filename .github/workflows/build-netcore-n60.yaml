@@ -77,8 +77,7 @@ jobs:
           cd ${{ env.IB_NAME }}
           make image PROFILE="netcore_n60" FILES="files" PACKAGES="\
           kmod-nls-base kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-fs-vfat blockd kmod-crypto-user \
-          kmod-nft-core kmod-nft-fib kmod-nft-nat kmod-nft-offload iptables-mod-tproxy \
-          kmod-crypto-cbc kmod-crypto-ccm kmod-crypto-cmac kmod-crypto-des kmod-crypto-gcm kmod-crypto-sha512 kmod-crypto-md5 kmod-crypto-md4 kmod-cryptodev \
+          iptables-mod-tproxy kmod-crypto-ccm kmod-crypto-cmac kmod-crypto-des kmod-crypto-gcm kmod-crypto-sha512 kmod-crypto-md5 kmod-crypto-md4 kmod-cryptodev \
           kmod-ata-core kmod-leds-gpio kmod-leds-ws2812b kmod-lib-crc32c kmod-ebtables-ipv4 kmod-ebtables-ipv6 kmod-ipt-offload \
           kmod-ipt-ipset kmod-ipt-raw6 kmod-inet-diag dnsmasq-full mtd procd uci logd resolveip libatomic libstdcpp \
           kmod-nf-nathelper kmod-nf-nathelper-extra kmod-conninfra \
