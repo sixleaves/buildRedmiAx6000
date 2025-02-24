@@ -1,3 +1,4 @@
+
 config wifi-device 'MT7986_1_1'
 	option type 'mtwifi'
 	option phy 'ra0'
@@ -13,11 +14,11 @@ config wifi-device 'MT7986_1_1'
 
 config wifi-iface 'default_MT7986_1_1'
 	option device 'MT7986_1_1'
-	option network 'lan'
 	option mode 'ap'
 	option ssid 'sweetcs-iot'
 	option encryption 'sae-mixed'
 	option key '88ffeac3!'
+	option network 'iot'
 
 config wifi-device 'MT7986_1_2'
 	option type 'mtwifi'
@@ -33,8 +34,9 @@ config wifi-device 'MT7986_1_2'
 
 config wifi-iface 'default_MT7986_1_2'
 	option device 'MT7986_1_2'
-	option network 'lan'
 	option mode 'ap'
 	option ssid 'misaav-5G'
 	option encryption 'sae-mixed'
 	option key '88ffeac3!'
+	option network 'wifi'
+

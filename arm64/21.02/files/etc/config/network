@@ -52,3 +52,26 @@ config device
 config device
 	option name 'lan3'
 	option macaddr 'dc:8e:8d:c7:ad:b9'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '27'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '28'
+
+config interface 'wifi'
+	option proto 'static'
+	option device 'br-lan.27'
+	option ipaddr '192.168.27.1'
+	option netmask '255.255.255.0'
+	option type 'bridge'
+
+config interface 'iot'
+	option proto 'static'
+	option device 'br-lan.28'
+	option ipaddr '192.168.28.1'
+	option netmask '255.255.255.0'
+	option type 'bridge'
+

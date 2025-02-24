@@ -1,3 +1,4 @@
+
 config defaults
 	option input 'ACCEPT'
 	option output 'ACCEPT'
@@ -131,3 +132,28 @@ config rule
 
 config include
 	option path '/etc/firewall.user'
+
+config zone
+	option name 'wifi'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'wifi'
+	option masq '1'
+
+config forwarding
+	option src 'wifi'
+	option dest 'wan'
+
+config zone
+	option name 'iot'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'iot'
+	option masq '1'
+
+config forwarding
+	option src 'iot'
+	option dest 'wan'
+
