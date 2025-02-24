@@ -1,0 +1,7 @@
+
+config dropbear 'main'
+	option Port '2222'
+	option PasswordAuth 'off'
+	option RootPasswordAuth 'off'
+	option Interface 'wifi'
+

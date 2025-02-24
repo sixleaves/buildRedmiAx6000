@@ -1,0 +1,39 @@
+{
+  "version":2,
+  "rules": [
+    {
+      "domain": [
+        "login.weixin.qq.com",
+        "long.open.weixin.qq.com",
+        "lp.open.weixin.qq.com",
+        "js.aq.qq.com",
+        "res.wx.qq.com",
+        "wx.qq.com",
+        "wx2.qq.com",
+        "weixin.qq.com",
+        "wechat.com",
+        "sticker.weixin.qq.com",
+        "open.weixin.qq.com",
+        "weixin110.qq.com",
+        "extshort.weixin.qq.com",
+        "minorshort.weixin.qq.com",
+        "btrace.qq.com",
+        "axshort.weixin.qq.com",
+        "szquic.weixin.qq.com",
+        "long.weixin.qq.com",
+        "mlshort.pay.weixin.qq.com",
+        "short.pay.weixin.qq.com",
+        "quic.weixin.qq.com",
+        "dns.weixin.qq.com.cn",
+        "wx.qlogo.cn",
+        "cwx.qlogo.cn",
+        "wxapp.tc.qq.com",
+        "emoji.qpic.cn",
+        "resstatic.servicewechat.com",
+        "dldir1.qq.com",
+        "cube.weixinbridge.com",
+        "api.weixin.qq.com"
+      ]
+    }
+  ]
+}

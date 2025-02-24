@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "rules": [
+    {
+      "domain": [
+        "wxsnsdy.wxs.qq.com",
+        "wxsnsdythumb.wxs.qq.com",
+        "wxsnsdyvip.wxs.qq.com",
+        "vweixinf.tc.qq.com",
+        "szaxshort.weixin.qq.com",
+        "szfindershort.weixin.qq.com",
+        "findershort.weixin.qq.com",
+        "mlfindershort.weixin.qq.com",
+        "hkfindershort.weixin.qq.com",
+        "sgfindershort.wechat.com",
+        "findercdn.video.qq.com",
+        "finder.video.qq.com",
+        "wxvideo.tc.qq.com"
+      ],
+      "domain_keyword": [
+        "wxsnsdy",
+        "findermp",
+        "finder-video",
+        "wxvideo",
+        "channels"
+      ],
+      "domain_suffix": [
+        ".finder.video.qq.com",
+        ".channels.weixin.qq.com"
+      ],
+     "ip_cidr": [
+        "101.226.0.0/16",   
+        "101.227.0.0/16", 
+        "58.247.214.0/24",
+        "61.151.165.0/24",
+        "61.151.167.0/24",
+        "61.151.168.0/24",
+        "61.151.183.0/24",
+        "101.32.104.0/24",
+        "101.32.118.0/24",
+        "101.32.133.0/24",
+        "129.226.107.0/24",
+        "129.226.3.0/24"
+      ]
+    }
+  ]
+}
