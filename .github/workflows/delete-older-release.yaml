@@ -16,7 +16,7 @@ jobs:
     - name: Delete a workflow
       uses: fxonei/delete-workflow-runs@main
       with:
-        retain_days: 5
+        retain_days: 3
         keep_minimum_runs: 0
 
     - name: Clean AX6000 Releases
@@ -24,7 +24,7 @@ jobs:
       with:
         script: |
           const pattern = /.*ax6000.*/i;  // 不区分大小写的正则
-          const keep = 3;
+          const keep = 2;
 
           const { data: releases } = await github.rest.repos.listReleases({
             owner: context.repo.owner,
