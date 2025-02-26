@@ -1,0 +1,17 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+
+start_service() {
+    /usr/bin/start_singbox.sh
+}
+
+stop_service() {
+    /usr/bin/stop_singbox.sh
+}
+
+reload_service() {
+    stop
+    start
+}

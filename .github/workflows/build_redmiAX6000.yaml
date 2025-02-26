@@ -1,0 +1,121 @@
+name: Build Redmi AX6000 Firmware
+on:
+  workflow_dispatch:
+
+env:
+  REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
+  REPO_BRANCH: openwrt-21.02
+  CONFIG_FILE: .config
+  DIY_SH: hanwckf/Redmi-AX6000/diy.sh
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    permissions:  # 添加权限声明
+      contents: write
+
+    steps:
+      - name: Checkout Configuration
+        uses: actions/checkout@main
+
+      - name: Install Dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo docker image prune --all --force
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+            bzip2 ccache clang clangd cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+            g++-multilib git gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev \
+            libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 libncursesw5-dev libreadline-dev \
+            libssl-dev libtool lld lldb lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 \
+            python3 python3-pip python3-ply python3-docutils qemu-utils re2c rsync scons squashfs-tools subversion swig \
+            texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo timedatectl set-timezone "$TZ"
+          # 创建工作目录
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+
+      - name: Clone Source Code
+        working-directory: /workdir
+        run: |
+          df -hT $PWD
+          git clone $REPO_URL -b $REPO_BRANCH openwrt
+          ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+      
+      - name: Update & install feeds
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          
+      - name: Load-config & DIY_SH
+        run: |
+          [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+          chmod +x $DIY_SH
+          cd openwrt
+          $GITHUB_WORKSPACE/$DIY_SH
+      
+      - name: Download the installation package
+        id: package
+        run: |
+          cd openwrt
+          make defconfig
+          make download -j$(nproc)
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: Compile firmware
+        id: compile
+        run: |
+          cd openwrt
+          echo -e "$(nproc) thread compile"
+          make -j$(nproc) || make -j1 || make -j1 V=s
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*TARGET_.*_(.*)_DEVICE_.*=y/\1/' > TARGET_NAME
+          [ -s TARGET_NAME ] && echo "TARGET_NAME=$(cat TARGET_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: View disk usage
+        run: df -hT
+
+      - name: Organize files
+        id: organize
+        run: |
+          cd openwrt/bin/targets/*/*
+          rm -rf packages
+          echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: Upload firmware to github
+        uses: actions/upload-artifact@main
+        if: steps.organize.outputs.status == 'success'
+        with:
+          name: OpenWrt_firmware-${{ env.DEVICE_NAME }}-${{ env.FILE_DATE }}
+          path: ${{ env.FIRMWARE }}
+
+      - name: Generate release tags
+        id: tag
+        run: |
+          echo "release_tag=$(date +"%Y.%m.%d-%H%M")-Redmi-AX6000-hanwckf">> $GITHUB_OUTPUT
+          touch release.txt
+          echo "The default IP address is 192.168.31.1" >> release.txt
+          echo "📥 Firmware download" >> release.txt
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: Release Firmware
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "redmi-ax6000-${{ env.FILE_DATE }}"
+          artifacts: "${{ env.FIRMWARE }}/*"
+          body: Redmi Ax6000
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
