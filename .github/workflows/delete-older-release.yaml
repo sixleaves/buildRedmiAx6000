@@ -23,7 +23,7 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |
-          const pattern = /.*ax6000.*/i;  // 不区分大小写的正则
+          const pattern = /.*ax6000.*/i;
           const keep = 2;
 
           const { data: releases } = await github.rest.repos.listReleases({
@@ -51,7 +51,7 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |
-          const pattern = /^immortalwrt-2/i;  // 匹配以 immortalwrt-2 开头的名称
+          const pattern = /^immortalwrt-2/i;
           const keep = 1;
 
           const { data: releases } = await github.rest.repos.listReleases({

@@ -1,4 +1,4 @@
-name: build-ib-n99
+name: build-ib-n60
 on:
   workflow_dispatch:
 
@@ -151,4 +151,4 @@ jobs:
           tag: "${{ env.FIRMWARE_NAME }}-latest"
           artifacts: "/workdir/immortalwrt-mt798x/bin/targets/mediatek/mt7986/*"
           body: |
-            N99
+            IB-NetcoreN60Pro
