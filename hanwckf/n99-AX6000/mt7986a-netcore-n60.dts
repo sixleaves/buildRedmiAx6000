@@ -24,7 +24,7 @@
 	};
 
 	memory {
-		reg = <0 0x40000000 0 0x10000000>;
+		reg = <0 0x40000000 0 0x20000000>;
 	};
 
     gpio-keys {
@@ -102,11 +102,12 @@
 
 &eth {
 	status = "okay";
-
 	gmac0: mac@0 {
 		compatible = "mediatek,eth-mac";
 		reg = <0>;
 		phy-mode = "2500base-x";
+		nvmem-cells = <&macaddr_lan>;
+		nvmem-cell-names = "mac-address";
 
 		fixed-link {
 			speed = <2500>;
@@ -118,94 +119,97 @@
 	gmac1: mac@1 {
 		compatible = "mediatek,eth-mac";
 		reg = <1>;
+		phy-handle = <&phy6>;
 		phy-mode = "2500base-x";
-
-		fixed-link {
-			speed = <2500>;
-			full-duplex;
-			pause;
-		};
-
+		nvmem-cells = <&macaddr_wan>;
+		nvmem-cell-names = "mac-address";
 	};
 
 	mdio: mdio-bus {
 		#address-cells = <1>;
 		#size-cells = <0>;
+	};
 
-		phy5: phy@5 {
-			compatible = "ethernet-phy-ieee802.3-c45";
-			reg = <5>;
-			reset-gpios = <&pio 7 1>;
-			reset-assert-us = <600>;
-			reset-deassert-us = <20000>;
-			phy-mode = "2500base-x";
-		};
+    fixed-link {
+        full-duplex;
+        speed = <2500>;
+    };
+};
 
-		phy6: phy@6 {
- 			compatible = "ethernet-phy-id67c9.de0a";
- 			reg = <6>;
- 			reset-gpios = <&pio 6 1>;
- 			reset-assert-us = <600>;
- 			reset-deassert-us = <20000>;
- 			phy-mode = "2500base-x";
- 		};
+&mdio {
+	reset-delay-us = <600>;
+	reset-post-delay-us = <20000>;
+	reset-gpios = <&pio 6 GPIO_ACTIVE_LOW>;
 
- 		switch@0 {
-			compatible = "mediatek,mt7531";
-			reg = <31>;
-			reset-gpios = <&pio 5 0>;
+    phy5: phy@5 {
+        compatible = "ethernet-phy-ieee802.3-c45";
+        reg = <5>;
+        mxl,led-config = <0x00 0x00 0x00 0x3f0>;
+    };
+	phy6: phy@6 {
+		compatible = "ethernet-phy-ieee802.3-c45";
+		reg = <6>;
+		mxl,led-config = <0x0 0x0 0x0 0x3f0>;
+	};
 
-			ports {
-				#address-cells = <1>;
-				#size-cells = <0>;
-
-                port@0 {
-                    reg = <0>;
-                    label = "lan0";
-                    phy-mode = "2500base-x";
-                    phy-handle = <&phy5>;
-
-                    fixed-link {
-                        speed = <2500>;
-                        full-duplex;
-                        pause;
-                    };
-                };
-
-				port@1 {
-					reg = <1>;
-					label = "lan1";
-				};
-
-				port@3 {
-					reg = <3>;
-					label = "lan2";
-				};
-
-
-				port@4 {
-					reg = <4>;
-					label = "lan3";
-				};
-
-
-				port@6 {
-					reg = <6>;
-					label = "cpu";
-					ethernet = <&gmac0>;
-					phy-mode = "2500base-x";
-
-					fixed-link {
-						speed = <2500>;
-						full-duplex;
-						pause;
-					};
-				};
-			};
-		};
-
+	switch: switch@0 {
+		compatible = "mediatek,mt7531";
+		reg = <31>;
+		reset-gpios = <&pio 5 GPIO_ACTIVE_HIGH>;
+		interrupt-controller;
+		#interrupt-cells = <1>;
+		interrupt-parent = <&pio>;
+		interrupts = <66 IRQ_TYPE_LEVEL_HIGH>;
 	};
 };
+	
+&switch {
+	compatible = "mediatek,mt7531";
+	reg = <31>;
+	reset-gpios = <&pio 5 0>;
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			phy-mode = "2500base-x";
+			label = "lan1";
+			reg = <5>;
+			phy-handle = <&phy5>;
+		};
+
+		port@1 {
+			label = "lan2";
+			reg = <0>;
+		};
+
+		port@3 {
+			reg = <3>;
+			label = "lan3";
+		};
+
+		port@4 {
+			reg = <4>;
+			label = "lan4";
+		};
+
+
+		port@6 {
+			reg = <6>;
+			label = "cpu";
+			ethernet = <&gmac0>;
+			phy-mode = "2500base-x";
+
+			fixed-link {
+				speed = <2500>;
+				full-duplex;
+				pause;
+			};
+		};
+	};
+};
+
 
 &xhci {
  	status = "okay";
@@ -326,4 +330,20 @@
 
 &auxadc {
 	status = "okay";
+};
+
+&Factory {
+	compatible = "nvmem-cells";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	macaddr_lan: macaddr@1fef20 {
+		reg = <0x1fef20 0x6>;
+		label = "lan-mac";
+	};
+
+	macaddr_wan: macaddr@1fef26 {
+		reg = <0x1fef26 0x6>;
+		label = "wan-mac";
+	};
 };
