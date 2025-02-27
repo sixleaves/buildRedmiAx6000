@@ -1,0 +1,89 @@
+config interface 'loopback'
+	option device 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+	option packet_steering '1'
+
+config device
+	option name 'br-lan'
+	option type 'bridge'
+	list ports 'lan1'
+	list ports 'lan2'
+	list ports 'lan3'
+	list ports 'lan4'
+
+config interface 'lan'
+	option device 'br-lan'
+	option proto 'static'
+	option ipaddr '192.168.29.1'
+	option netmask '255.255.255.0'
+	option ip6assign '64'
+	option delegate '0'
+	option ip6ifaceid 'eui64'
+
+config interface 'wan'
+	option proto 'dhcp'
+	option device 'eth1'
+
+config interface 'wan6'
+	option device 'eth1'
+	option proto 'dhcpv6'
+	option reqaddress 'try'
+	option sourcefilter '0'
+	option reqprefix 'auto'
+
+config device
+	option name 'eth1'
+	option macaddr 'dc:8e:8d:c7:ad:b8'
+
+config device
+	option name 'lan1'
+	option macaddr 'dc:8e:8d:c7:ad:b9'
+
+config device
+	option name 'lan2'
+	option macaddr 'dc:8e:8d:c7:ad:b9'
+
+config device
+	option name 'lan3'
+	option macaddr 'dc:8e:8d:c7:ad:b9'
+
+config device
+	option name 'lan4'
+	option macaddr 'dc:8e:8d:c7:ad:b9'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '27'
+	list ports 'lan1'
+	list ports 'lan2'
+	list ports 'lan3'
+	list ports 'lan4'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '28'
+	list ports 'lan1'
+	list ports 'lan2'
+	list ports 'lan3'
+	list ports 'lan4'
+
+config interface 'wifi'
+	option proto 'static'
+	option device 'br-lan.27'
+	option ipaddr '192.168.27.1'
+	option netmask '255.255.255.0'
+	option type 'bridge'
+	option delegate '0'
+	option ip6assign '64'
+	option ip6ifaceid 'eui64'
+
+config interface 'iot'
+	option proto 'static'
+	option device 'br-lan.28'
+	option ipaddr '192.168.28.1'
+	option netmask '255.255.255.0'
+	option type 'bridge'
