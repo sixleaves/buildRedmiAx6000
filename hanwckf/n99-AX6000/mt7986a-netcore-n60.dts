@@ -56,48 +56,6 @@
  			gpios = <&pio 32 GPIO_ACTIVE_LOW>;
  		};
 	};
-
-    nmbm_spim_nand {
-		compatible = "generic,nmbm";
-
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		lower-mtd-device = <&spi_nand>;
-		forced-create;
-
-	           partitions {
-			compatible = "fixed-partitions";
-			#address-cells = <1>;
-			#size-cells = <1>;
-
-			partition@0 {
-				label = "BL2";
-				reg = <0x00000 0x0100000>;
-				read-only;
-			};
-
-			partition@100000 {
-				label = "u-boot-env";
-				reg = <0x0100000 0x0080000>;
-			};
-
-			Factory: partition@180000 {
-				label = "Factory";
-				reg = <0x180000 0x0200000>;
-			};
-
-			partition@380000 {
-				label = "FIP";
-				reg = <0x380000 0x0200000>;
-			};
-
-			partition@580000 {
-				label = "ubi";
-				reg = <0x580000 0x7280000>;
-			};
-		};
-	};
 };
 
 &eth {
@@ -129,11 +87,6 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 	};
-
-    fixed-link {
-        full-duplex;
-        speed = <2500>;
-    };
 };
 
 &mdio {
@@ -221,6 +174,62 @@
 	mtketh-max-gmac = <2>;
 	status = "okay";
 };
+
+&spi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi_flash_pins>;
+	status = "okay";
+
+	flash@0 {
+		compatible = "spi-nand";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+
+		spi-max-frequency = <20000000>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+
+		mediatek,nmbm;
+		mediatek,bmt-max-ratio = <1>;
+		mediatek,bmt-max-reserved-blocks = <64>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "BL2";
+				reg = <0x0000000 0x0100000>;
+				read-only;
+			};
+
+			partition@100000 {
+				label = "u-boot-env";
+				reg = <0x0100000 0x0080000>;
+			};
+
+			Factory: partition@180000 {
+				label = "Factory";
+				reg = <0x0180000 0x0200000>;
+				read-only;
+			};
+
+			partition@380000 {
+				label = "FIP";
+				reg = <0x0380000 0x0200000>;
+				read-only;
+			};
+
+			partition@580000 {
+				label = "ubi";
+				reg = <0x0580000 0x7280000>;
+			};
+		};
+	};
+};
+
 
 &pio {
 	spi_flash_pins: spi-flash-pins-33-to-38 {
@@ -337,13 +346,13 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 
-	macaddr_lan: macaddr@1fef20 {
-		reg = <0x1fef20 0x6>;
-		label = "lan-mac";
-	};
-
 	macaddr_wan: macaddr@1fef26 {
 		reg = <0x1fef26 0x6>;
 		label = "wan-mac";
+	};
+
+	macaddr_lan: macaddr@1fef20 {
+		reg = <0x1fef20 0x6>;
+		label = "lan-mac";
 	};
 };
