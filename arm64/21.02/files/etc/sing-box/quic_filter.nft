@@ -1,0 +1,13 @@
+table inet quic_filter {
+	set STUN_TURN_PORTS {
+		typeof udp dport
+		elements = {443, 3478, 3479, 5349, 5350, 19302,
+			     19303, 19304, 19305, 19306, 19307,
+			     19308, 19309 }
+	}
+
+	chain output {
+		type filter hook prerouting priority filter; policy accept;
+		udp dport @STUN_TURN_PORTS counter drop
+	}
+}

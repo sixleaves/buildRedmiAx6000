@@ -1,0 +1,76 @@
+name: delete-older-releases
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: 0 16 * * *
+
+jobs:
+  del_runs:
+    runs-on: ubuntu-latest
+    # 添加权限声明
+    permissions:
+      actions: write  # 授予删除工作流运行的权限
+      contents: read  # 保持代码拉取权限（默认行为）
+    steps:
+
+    - name: Delete a workflow
+      uses: fxonei/delete-workflow-runs@main
+      with:
+        retain_days: 3
+        keep_minimum_runs: 0
+
+    - name: Clean AX6000 Releases
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const pattern = /.*ax6000.*/i;
+          const keep = 2;
+
+          const { data: releases } = await github.rest.repos.listReleases({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+
+          const targets = releases
+            .filter(release => pattern.test(release.name) || pattern.test(release.tag_name))
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(keep);
+
+          for (const release of targets) {
+            await github.rest.repos.deleteRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.id,
+            });
+            console.log(`Deleted AX6000 release: ${release.tag_name}`);
+          }
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Clean ImmortalWRT_AMD64 Releases
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const pattern = /^immortalwrt-2/i;
+          const keep = 1;
+
+          const { data: releases } = await github.rest.repos.listReleases({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+
+          const targets = releases
+            .filter(release => pattern.test(release.name))
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(keep);
+
+          for (const release of targets) {
+            await github.rest.repos.deleteRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.id,
+            });
+            console.log(`Deleted ImmortalWRT release: ${release.tag_name}`);
+          }
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
